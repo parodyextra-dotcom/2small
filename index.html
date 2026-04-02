@@ -6,6 +6,7 @@
 <title>2종소형면허 회원관리</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
   --primary: #2563eb;
@@ -721,6 +722,185 @@ body {
 
 .back-btn:hover { color: var(--primary); background: var(--primary-light); }
 
+/* ===== STATS PAGE ===== */
+.stats-period-tabs {
+  display: flex;
+  background: white;
+  border-radius: var(--radius);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.period-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.2s;
+}
+
+.period-tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.period-tab:hover:not(.active) { background: var(--gray-100); color: var(--gray-700); }
+
+.stats-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.summary-card .icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 20px;
+}
+
+.summary-card .icon.phone-icon { background: var(--success-light); color: var(--success); }
+.summary-card .icon.sms-icon { background: var(--primary-light); color: var(--primary); }
+.summary-card .icon.member-icon { background: var(--purple-light); color: var(--purple); }
+
+.summary-card .number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gray-800);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.summary-card .label {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.chart-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.chart-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-800);
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.stats-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+}
+
+.log-item .log-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.log-item .log-icon.type-call { background: var(--success-light); color: var(--success); }
+.log-item .log-icon.type-sms { background: var(--primary-light); color: var(--primary); }
+.log-item .log-icon.type-bulk_sms { background: var(--purple-light); color: var(--purple); }
+.log-item .log-icon.type-new_member { background: var(--warning-light); color: var(--warning); }
+
+.log-item .log-info { flex: 1; min-width: 0; }
+.log-item .log-info .log-title { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+.log-item .log-info .log-desc { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+.log-item .log-time { font-size: 11px; color: var(--gray-400); flex-shrink: 0; text-align: right; }
+
+.stats-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stats-date-nav .date-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-800);
+  min-width: 160px;
+  text-align: center;
+}
+
+.stats-date-nav button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-200);
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--gray-600);
+  transition: all 0.2s;
+}
+
+.stats-date-nav button:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+@media (max-width: 600px) {
+  .stats-summary { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .summary-card { padding: 12px 8px; }
+  .summary-card .number { font-size: 22px; }
+  .summary-card .icon { width: 36px; height: 36px; font-size: 16px; }
+  .chart-container { height: 220px; }
+  .period-tab { font-size: 12px; padding: 8px 4px; }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -747,6 +927,7 @@ body {
   <button class="nav-tab active" onclick="switchPage('list')"><i class="fas fa-list"></i> 회원목록</button>
   <button class="nav-tab" onclick="switchPage('add')"><i class="fas fa-user-plus"></i> 회원등록</button>
   <button class="nav-tab" onclick="switchPage('bulksms')"><i class="fas fa-paper-plane"></i> 단체문자</button>
+  <button class="nav-tab" onclick="switchPage('stats')"><i class="fas fa-chart-bar"></i> 통계</button>
 </nav>
 
 <!-- MAIN CONTENT -->
@@ -913,6 +1094,63 @@ body {
     </div>
   </div>
 
+  <!-- ========== STATS PAGE ========== -->
+  <div id="page-stats" class="page">
+    <!-- Period Tabs -->
+    <div class="stats-period-tabs">
+      <button class="period-tab active" onclick="setStatsPeriod('daily')">일일</button>
+      <button class="period-tab" onclick="setStatsPeriod('weekly')">주별</button>
+      <button class="period-tab" onclick="setStatsPeriod('monthly')">월별</button>
+      <button class="period-tab" onclick="setStatsPeriod('yearly')">년별</button>
+    </div>
+
+    <!-- Date Navigation -->
+    <div class="stats-date-nav">
+      <button onclick="navigateStats(-1)"><i class="fas fa-chevron-left"></i></button>
+      <span class="date-label" id="statsDateLabel">2026.04.02</span>
+      <button onclick="navigateStats(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stats-summary">
+      <div class="summary-card">
+        <div class="icon phone-icon"><i class="fas fa-phone"></i></div>
+        <div class="number" id="statsCallCount">0</div>
+        <div class="label">전화 발신</div>
+      </div>
+      <div class="summary-card">
+        <div class="icon sms-icon"><i class="fas fa-comment"></i></div>
+        <div class="number" id="statsSmsCount">0</div>
+        <div class="label">문자 발송</div>
+      </div>
+      <div class="summary-card">
+        <div class="icon member-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="number" id="statsNewMember">0</div>
+        <div class="label">신규 회원</div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-bar" style="color:var(--primary)"></i> 활동 추이</h3>
+      <div class="chart-container"><canvas id="statsBarChart"></canvas></div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="chart-card">
+      <h3><i class="fas fa-chart-pie" style="color:var(--purple)"></i> 활동 비율</h3>
+      <div class="chart-container" style="height:250px;"><canvas id="statsPieChart"></canvas></div>
+    </div>
+
+    <!-- Recent Activity Log -->
+    <div class="chart-card">
+      <h3><i class="fas fa-history" style="color:var(--warning)"></i> 최근 활동 기록</h3>
+      <div class="stats-log-list" id="statsLogList">
+        <div style="text-align:center; padding:20px; color:var(--gray-400);">활동 기록이 없습니다</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- FAB (회원 등록) -->
@@ -1025,7 +1263,7 @@ function renderMemberList(filtered) {
         <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>
       </div>
       <div class="member-actions" onclick="event.stopPropagation();">
-        <button class="btn-icon call" onclick="callMember('${esc(m.phone)}')" title="전화"><i class="fas fa-phone"></i></button>
+        <button class="btn-icon call" onclick="callMember('${esc(m.phone)}', '${esc(m.name)}')" title="전화"><i class="fas fa-phone"></i></button>
         <button class="btn-icon sms" onclick="openIndividualSMS('${m.id}')" title="문자"><i class="fas fa-comment"></i></button>
         <button class="btn-icon delete" onclick="openDeleteModal('${m.id}', '${esc(m.name)}')" title="삭제"><i class="fas fa-trash"></i></button>
       </div>
@@ -1088,6 +1326,7 @@ async function saveMember() {
     } else {
       await createMember(data);
       showToast(`${name} 회원이 등록되었습니다`, 'success');
+      logActivity('new_member', '', name, `${name} 회원 신규 등록`);
     }
     resetForm();
     await loadMembers();
@@ -1156,7 +1395,7 @@ function viewDetail(id) {
         </div>
       </div>
       <div class="detail-actions">
-        <button class="btn btn-success" onclick="callMember('${esc(m.phone)}')"><i class="fas fa-phone"></i> 전화걸기</button>
+        <button class="btn btn-success" onclick="callMember('${esc(m.phone)}', '${esc(m.name)}')"><i class="fas fa-phone"></i> 전화걸기</button>
         <button class="btn btn-primary" onclick="openIndividualSMS('${m.id}')"><i class="fas fa-comment"></i> 문자보내기</button>
         <button class="btn btn-secondary" onclick="editMember('${m.id}')"><i class="fas fa-edit"></i> 수정하기</button>
         <button class="btn btn-danger" onclick="openDeleteModal('${m.id}', '${esc(m.name)}')"><i class="fas fa-trash"></i> 삭제하기</button>
@@ -1214,9 +1453,10 @@ async function confirmDelete() {
 }
 
 // ===== PHONE / SMS =====
-function callMember(phone) {
+function callMember(phone, memberName) {
   if (!phone || phone === '-') { showToast('전화번호가 없습니다', 'error'); return; }
   const cleanPhone = phone.replace(/[^0-9]/g, '');
+  logActivity('call', '', memberName || '', `${phone}에 전화 발신`);
   window.location.href = `tel:${cleanPhone}`;
 }
 
@@ -1263,6 +1503,7 @@ function sendSMS() {
   const sep = /iphone|ipad|ipod/.test(ua) ? '&' : '?';
   window.location.href = `sms:${cleanPhone}${sep}body=${encoded}`;
 
+  logActivity('sms', m.id, m.name, `${m.name}님에게 문자 발송`, 1);
   document.getElementById('smsModalMsg').textContent = `${m.name}님에게 문자 앱이 열립니다.`;
   document.getElementById('smsModal').classList.add('active');
 }
@@ -1344,6 +1585,11 @@ function sendBulkSMS() {
   const phoneStr = phones.join(',');
   window.location.href = `sms:${phoneStr}${sep}body=${encoded}`;
 
+  // Log bulk sms
+  const names = [];
+  checked.forEach(cb => { if (cb.dataset.name) names.push(cb.dataset.name); });
+  logActivity('bulk_sms', '', names[0] || '', `${phones.length}명에게 단체 문자 발송`, phones.length);
+
   document.getElementById('smsModalMsg').textContent = `${phones.length}명에게 문자 앱이 열립니다.`;
   document.getElementById('smsModal').classList.add('active');
 }
@@ -1361,7 +1607,7 @@ function switchPage(page) {
   if (pageEl) pageEl.classList.add('active');
 
   // Update tab active state
-  const tabMap = { list: 0, add: 1, bulksms: 2 };
+  const tabMap = { list: 0, add: 1, bulksms: 2, stats: 3 };
   if (tabMap[page] !== undefined) {
     document.querySelectorAll('.nav-tab')[tabMap[page]].classList.add('active');
   }
@@ -1372,6 +1618,9 @@ function switchPage(page) {
 
   // Refresh bulk list when switching to bulksms
   if (page === 'bulksms') renderBulkMemberList();
+
+  // Refresh stats when switching to stats
+  if (page === 'stats') loadStatsData();
 
   // If going to add page fresh (not edit), reset form
   if (page === 'add' && !document.getElementById('editId').value) {
@@ -1409,6 +1658,318 @@ function formatPhone(input) {
     val = val.slice(0, 3) + '-' + val.slice(3);
   }
   input.value = val;
+}
+
+// ===== ACTIVITY LOG =====
+async function logActivity(type, memberId, memberName, detail, count = 1) {
+  try {
+    await fetch('tables/activity_logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        member_id: memberId || '',
+        member_name: memberName || '',
+        detail: detail || '',
+        count,
+        log_date: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error('Failed to log activity:', e);
+  }
+}
+
+// ===== STATS =====
+let statsPeriod = 'daily';
+let statsBaseDate = new Date();
+let statsBarChart = null;
+let statsPieChart = null;
+let activityLogs = [];
+
+function setStatsPeriod(period) {
+  statsPeriod = period;
+  statsBaseDate = new Date();
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  loadStatsData();
+}
+
+function navigateStats(dir) {
+  const d = statsBaseDate;
+  if (statsPeriod === 'daily') d.setDate(d.getDate() + dir);
+  else if (statsPeriod === 'weekly') d.setDate(d.getDate() + dir * 7);
+  else if (statsPeriod === 'monthly') d.setMonth(d.getMonth() + dir);
+  else if (statsPeriod === 'yearly') d.setFullYear(d.getFullYear() + dir);
+  loadStatsData();
+}
+
+function getStatsDateRange() {
+  const base = new Date(statsBaseDate);
+  let start, end, label, labels = [], ranges = [];
+
+  if (statsPeriod === 'daily') {
+    // Show 7 days ending at base
+    label = `${base.getFullYear()}.${String(base.getMonth()+1).padStart(2,'0')}.${String(base.getDate()).padStart(2,'0')}`;
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(base);
+      d.setDate(d.getDate() - i);
+      const ds = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const de = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+      labels.push(`${d.getMonth()+1}/${d.getDate()}`);
+      ranges.push({ start: ds, end: de });
+    }
+    start = ranges[0].start;
+    end = ranges[ranges.length-1].end;
+  } else if (statsPeriod === 'weekly') {
+    // Show 4 weeks ending at base week
+    const dayOfWeek = base.getDay();
+    const weekStart = new Date(base);
+    weekStart.setDate(weekStart.getDate() - dayOfWeek);
+    label = `${weekStart.getFullYear()}.${String(weekStart.getMonth()+1).padStart(2,'0')} ${Math.ceil(weekStart.getDate()/7)}째주`;
+    for (let i = 3; i >= 0; i--) {
+      const ws = new Date(weekStart);
+      ws.setDate(ws.getDate() - i * 7);
+      const we = new Date(ws);
+      we.setDate(we.getDate() + 7);
+      labels.push(`${ws.getMonth()+1}/${ws.getDate()}~`);
+      ranges.push({ start: ws, end: we });
+    }
+    start = ranges[0].start;
+    end = ranges[ranges.length-1].end;
+  } else if (statsPeriod === 'monthly') {
+    // Show 6 months ending at base month
+    label = `${base.getFullYear()}년 ${base.getMonth()+1}월`;
+    for (let i = 5; i >= 0; i--) {
+      const ms = new Date(base.getFullYear(), base.getMonth() - i, 1);
+      const me = new Date(base.getFullYear(), base.getMonth() - i + 1, 1);
+      labels.push(`${ms.getMonth()+1}월`);
+      ranges.push({ start: ms, end: me });
+    }
+    start = ranges[0].start;
+    end = ranges[ranges.length-1].end;
+  } else {
+    // yearly: Show 5 years ending at base year
+    label = `${base.getFullYear()}년`;
+    for (let i = 4; i >= 0; i--) {
+      const ys = new Date(base.getFullYear() - i, 0, 1);
+      const ye = new Date(base.getFullYear() - i + 1, 0, 1);
+      labels.push(`${ys.getFullYear()}`);
+      ranges.push({ start: ys, end: ye });
+    }
+    start = ranges[0].start;
+    end = ranges[ranges.length-1].end;
+  }
+
+  return { label, labels, ranges, start, end };
+}
+
+async function loadStatsData() {
+  const { label, labels, ranges, start, end } = getStatsDateRange();
+  document.getElementById('statsDateLabel').textContent = label;
+
+  // Load activity logs
+  try {
+    const res = await fetch('tables/activity_logs?limit=10000&sort=-created_at');
+    const json = await res.json();
+    activityLogs = json.data || [];
+  } catch (e) {
+    activityLogs = [];
+  }
+
+  // Filter logs for current range (total period)
+  const periodLogs = activityLogs.filter(l => {
+    const d = new Date(l.log_date || l.created_at);
+    return d >= start && d < end;
+  });
+
+  // Current sub-period (last item in ranges) for summary
+  const currentRange = ranges[ranges.length - 1];
+  const currentLogs = activityLogs.filter(l => {
+    const d = new Date(l.log_date || l.created_at);
+    return d >= currentRange.start && d < currentRange.end;
+  });
+
+  // Summary counts for current period
+  const callCount = currentLogs.filter(l => l.type === 'call').length;
+  const smsCount = currentLogs.filter(l => l.type === 'sms' || l.type === 'bulk_sms')
+    .reduce((sum, l) => sum + (l.count || 1), 0);
+  const newMemberCount = currentLogs.filter(l => l.type === 'new_member').length;
+
+  document.getElementById('statsCallCount').textContent = callCount;
+  document.getElementById('statsSmsCount').textContent = smsCount;
+  document.getElementById('statsNewMember').textContent = newMemberCount;
+
+  // Also count new members from members table if no log
+  const memberNewCount = countNewMembersInRange(currentRange.start, currentRange.end);
+  if (newMemberCount === 0 && memberNewCount > 0) {
+    document.getElementById('statsNewMember').textContent = memberNewCount;
+  }
+
+  // Build chart data per range bucket
+  const callData = [], smsData = [], memberData = [];
+  ranges.forEach(r => {
+    const rl = activityLogs.filter(l => {
+      const d = new Date(l.log_date || l.created_at);
+      return d >= r.start && d < r.end;
+    });
+    callData.push(rl.filter(l => l.type === 'call').length);
+    smsData.push(rl.filter(l => l.type === 'sms' || l.type === 'bulk_sms').reduce((s, l) => s + (l.count || 1), 0));
+    // New members from logs or from members table
+    const logNewM = rl.filter(l => l.type === 'new_member').length;
+    const tableNewM = countNewMembersInRange(r.start, r.end);
+    memberData.push(Math.max(logNewM, tableNewM));
+  });
+
+  renderStatsBarChart(labels, callData, smsData, memberData);
+
+  // Pie chart - totals across all displayed ranges
+  const totalCalls = callData.reduce((a,b) => a+b, 0);
+  const totalSms = smsData.reduce((a,b) => a+b, 0);
+  const totalNew = memberData.reduce((a,b) => a+b, 0);
+  renderStatsPieChart(totalCalls, totalSms, totalNew);
+
+  // Recent log list
+  renderRecentLogs();
+}
+
+function countNewMembersInRange(start, end) {
+  return members.filter(m => {
+    const d = new Date(m.reg_date || m.created_at);
+    return d >= start && d < end;
+  }).length;
+}
+
+function renderStatsBarChart(labels, callData, smsData, memberData) {
+  const ctx = document.getElementById('statsBarChart').getContext('2d');
+  if (statsBarChart) statsBarChart.destroy();
+
+  statsBarChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '전화',
+          data: callData,
+          backgroundColor: 'rgba(22,163,74,0.7)',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: '문자',
+          data: smsData,
+          backgroundColor: 'rgba(37,99,235,0.7)',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: '신규회원',
+          data: memberData,
+          backgroundColor: 'rgba(124,58,237,0.7)',
+          borderRadius: 6,
+          borderSkipped: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12, family: 'Noto Sans KR' } }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Noto Sans KR' } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.05)' } }
+      }
+    }
+  });
+}
+
+function renderStatsPieChart(calls, sms, newMembers) {
+  const ctx = document.getElementById('statsPieChart').getContext('2d');
+  if (statsPieChart) statsPieChart.destroy();
+
+  const total = calls + sms + newMembers;
+
+  statsPieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['전화', '문자', '신규회원'],
+      datasets: [{
+        data: total > 0 ? [calls, sms, newMembers] : [1, 1, 1],
+        backgroundColor: total > 0
+          ? ['rgba(22,163,74,0.8)', 'rgba(37,99,235,0.8)', 'rgba(124,58,237,0.8)']
+          : ['rgba(229,231,235,0.5)', 'rgba(229,231,235,0.5)', 'rgba(229,231,235,0.5)'],
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, font: { size: 12, family: 'Noto Sans KR' } }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              if (total === 0) return '데이터 없음';
+              const val = context.parsed;
+              const pct = ((val / total) * 100).toFixed(1);
+              return `${context.label}: ${val}건 (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderRecentLogs() {
+  const list = document.getElementById('statsLogList');
+  const recent = activityLogs.slice(0, 20);
+
+  if (recent.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--gray-400);">활동 기록이 없습니다</div>';
+    return;
+  }
+
+  const typeIcons = {
+    call: 'fa-phone',
+    sms: 'fa-comment',
+    bulk_sms: 'fa-paper-plane',
+    new_member: 'fa-user-plus'
+  };
+  const typeLabels = {
+    call: '전화 발신',
+    sms: '문자 발송',
+    bulk_sms: '단체 문자',
+    new_member: '신규 등록'
+  };
+
+  list.innerHTML = recent.map(l => {
+    const dt = new Date(l.log_date || l.created_at);
+    const timeStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    const icon = typeIcons[l.type] || 'fa-circle';
+    const label = typeLabels[l.type] || l.type;
+    const desc = l.member_name ? `${l.member_name}${l.count > 1 ? ` 외 ${l.count-1}명` : ''}` : (l.detail || '');
+    return `
+      <div class="log-item">
+        <div class="log-icon type-${l.type}"><i class="fas ${icon}"></i></div>
+        <div class="log-info">
+          <div class="log-title">${label}</div>
+          <div class="log-desc">${esc(desc)}</div>
+        </div>
+        <div class="log-time">${timeStr}</div>
+      </div>`;
+  }).join('');
 }
 
 function showToast(msg, type = 'info') {
