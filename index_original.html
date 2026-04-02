@@ -76,17 +76,6 @@ body {
 
 .header-top h1 i { font-size: 24px; }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-right .date-text {
-  font-size:13px; 
-  opacity:0.8;
-}
-
 .header-stats {
   display: flex;
   gap: 16px;
@@ -110,31 +99,6 @@ body {
 }
 
 .stat-badge .num { font-weight: 700; font-size: 15px; }
-
-/* ===== DATA MANAGEMENT BUTTONS ===== */
-.data-mgmt-btn {
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: inherit;
-}
-
-.data-mgmt-btn:hover {
-  background: rgba(255,255,255,0.35);
-  transform: translateY(-1px);
-}
-
-.data-mgmt-btn i { font-size: 12px; }
 
 /* ===== NAVIGATION TABS ===== */
 .nav-tabs {
@@ -285,11 +249,6 @@ body {
   font-size: 14px;
   color: var(--gray-500);
   margin-bottom: 4px;
-}
-
-.member-info .exam-date {
-  font-size: 12px;
-  color: var(--gray-400);
 }
 
 .status-tag {
@@ -741,8 +700,6 @@ body {
   .detail-actions { grid-template-columns: 1fr; }
   .member-card { padding: 12px; gap: 10px; }
   .member-avatar { width: 44px; height: 44px; font-size: 16px; }
-  .data-mgmt-btn { padding: 5px 8px; font-size: 11px; }
-  .data-mgmt-btn span { display: none; }
 }
 
 /* ===== BACK BUTTON ===== */
@@ -948,7 +905,6 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
-
 /* ===== LOGIN SCREEN ===== */
 .login-overlay {
   position: fixed;
@@ -1087,51 +1043,6 @@ body {
 .app-content-wrap.visible {
   display: block;
 }
-
-/* ===== DATA MANAGEMENT MODAL ===== */
-.data-modal-content {
-  text-align: left;
-}
-
-.data-modal-content .data-option {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.data-modal-content .data-option:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
-
-.data-modal-content .data-option .opt-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.data-modal-content .data-option .opt-icon.load { background: var(--success-light); color: var(--success); }
-.data-modal-content .data-option .opt-icon.export { background: var(--primary-light); color: var(--primary); }
-.data-modal-content .data-option .opt-icon.file-load { background: var(--purple-light); color: var(--purple); }
-.data-modal-content .data-option .opt-icon.clear { background: var(--danger-light); color: var(--danger); }
-
-.data-modal-content .data-option .opt-info { flex: 1; }
-.data-modal-content .data-option .opt-info .opt-title { font-size: 15px; font-weight: 600; color: var(--gray-800); }
-.data-modal-content .data-option .opt-info .opt-desc { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
-
-/* Hidden file input */
-#jsonFileInput { display: none; }
 </style>
 </head>
 <body>
@@ -1157,18 +1068,12 @@ body {
 <header class="app-header">
   <div class="header-top">
     <h1><i class="fas fa-motorcycle"></i> 2종소형 회원관리</h1>
-    <div class="header-right">
-      <button class="data-mgmt-btn" onclick="openDataModal()" title="데이터 관리">
-        <i class="fas fa-database"></i> <span>데이터관리</span>
-      </button>
-      <div class="date-text"><i class="far fa-calendar-alt"></i> <span id="todayDate"></span></div>
-    </div>
+    <div style="font-size:13px; opacity:0.8;"><i class="far fa-calendar-alt"></i> <span id="todayDate"></span></div>
   </div>
   <div class="header-stats">
     <div class="stat-badge"><i class="fas fa-users"></i> 전체 <span class="num" id="statTotal">0</span></div>
     <div class="stat-badge"><i class="fas fa-book-open"></i> 교육중 <span class="num" id="statTraining">0</span></div>
     <div class="stat-badge"><i class="fas fa-trophy"></i> 합격 <span class="num" id="statPass">0</span></div>
-    <div class="stat-badge"><i class="fas fa-times-circle"></i> 불합격 <span class="num" id="statFail">0</span></div>
   </div>
 </header>
 
@@ -1238,22 +1143,6 @@ body {
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>검정일자</label>
-          <input type="date" id="fExamDate">
-        </div>
-        <div class="form-group">
-          <label>진행상태</label>
-          <select id="fStatus">
-            <option value="교육전">교육전</option>
-            <option value="교육중">교육중</option>
-            <option value="시험대기">시험대기</option>
-            <option value="합격">합격</option>
-            <option value="불합격">불합격</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
           <label>성격</label>
           <select id="fPersonality">
             <option value="">선택</option>
@@ -1267,7 +1156,14 @@ body {
           </select>
         </div>
         <div class="form-group">
-          <label>&nbsp;</label>
+          <label>진행상태</label>
+          <select id="fStatus">
+            <option value="교육전">교육전</option>
+            <option value="교육중">교육중</option>
+            <option value="시험대기">시험대기</option>
+            <option value="합격">합격</option>
+            <option value="불합격">불합격</option>
+          </select>
         </div>
       </div>
       <div class="form-group">
@@ -1442,61 +1338,6 @@ body {
   </div>
 </div>
 
-<!-- DATA MANAGEMENT MODAL -->
-<div class="modal-overlay" id="dataModal">
-  <div class="modal-box" style="max-width:440px;">
-    <h3 style="margin-bottom:16px;"><i class="fas fa-database" style="color:var(--primary)"></i> 데이터 관리</h3>
-    <div class="data-modal-content">
-      <div class="data-option" onclick="loadFromP1Json()">
-        <div class="opt-icon load"><i class="fas fa-cloud-download-alt"></i></div>
-        <div class="opt-info">
-          <div class="opt-title">p1.json에서 불러오기</div>
-          <div class="opt-desc">서버의 p1.json 파일에서 회원 데이터를 불러옵니다</div>
-        </div>
-      </div>
-      <div class="data-option" onclick="document.getElementById('jsonFileInput').click()">
-        <div class="opt-icon file-load"><i class="fas fa-file-upload"></i></div>
-        <div class="opt-info">
-          <div class="opt-title">JSON 파일 불러오기</div>
-          <div class="opt-desc">내 기기에서 JSON 파일을 선택하여 불러옵니다</div>
-        </div>
-      </div>
-      <div class="data-option" onclick="exportToJson()">
-        <div class="opt-icon export"><i class="fas fa-file-export"></i></div>
-        <div class="opt-info">
-          <div class="opt-title">JSON으로 내보내기</div>
-          <div class="opt-desc">현재 회원 데이터를 JSON 파일로 다운로드합니다</div>
-        </div>
-      </div>
-      <div class="data-option" onclick="confirmClearData()">
-        <div class="opt-icon clear"><i class="fas fa-trash-alt"></i></div>
-        <div class="opt-info">
-          <div class="opt-title">전체 데이터 삭제</div>
-          <div class="opt-desc">저장된 모든 회원 데이터를 초기화합니다</div>
-        </div>
-      </div>
-    </div>
-    <div class="btn-group" style="margin-top:16px;">
-      <button class="btn btn-secondary" onclick="closeDataModal()"><i class="fas fa-times"></i> 닫기</button>
-    </div>
-  </div>
-</div>
-
-<!-- CLEAR DATA CONFIRM MODAL -->
-<div class="modal-overlay" id="clearDataModal">
-  <div class="modal-box">
-    <h3><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> 데이터 초기화</h3>
-    <p>모든 회원 데이터와 활동 기록이 삭제됩니다.<br>이 작업은 되돌릴 수 없습니다.<br>계속하시겠습니까?</p>
-    <div class="btn-group">
-      <button class="btn btn-secondary" onclick="document.getElementById('clearDataModal').classList.remove('active')">취소</button>
-      <button class="btn btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> 전체 삭제</button>
-    </div>
-  </div>
-</div>
-
-<!-- Hidden file input for JSON import -->
-<input type="file" id="jsonFileInput" accept=".json,.txt" onchange="handleFileImport(event)">
-
 </div><!-- end app-content-wrap -->
 
 <script>
@@ -1526,226 +1367,52 @@ if (sessionStorage.getItem('loggedIn') === 'true') {
 
 // ===== GLOBAL STATE =====
 let members = [];
-let activityLogs = [];
 let currentMemberId = null;
 let deleteTargetId = null;
 let previousPage = 'list';
 
-// ===== LOCAL STORAGE KEYS =====
-const STORAGE_KEY_MEMBERS = 'members_data';
-const STORAGE_KEY_LOGS = 'activity_logs';
-
-// ===== LOCAL STORAGE HELPERS =====
-function saveMembers() {
-  localStorage.setItem(STORAGE_KEY_MEMBERS, JSON.stringify(members));
-}
-
-function saveLogs() {
-  localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(activityLogs));
-}
-
-function loadMembersFromStorage() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY_MEMBERS);
-    members = data ? JSON.parse(data) : [];
-  } catch (e) {
-    console.error('Failed to load members from localStorage:', e);
-    members = [];
-  }
-}
-
-function loadLogsFromStorage() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY_LOGS);
-    activityLogs = data ? JSON.parse(data) : [];
-  } catch (e) {
-    console.error('Failed to load logs from localStorage:', e);
-    activityLogs = [];
-  }
-}
-
-// ===== GENERATE UNIQUE ID =====
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
-
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('todayDate').textContent = formatDate(new Date());
-  loadMembersFromStorage();
-  loadLogsFromStorage();
-  renderMemberList();
-  updateStats();
-  renderBulkMemberList();
+  loadMembers();
 });
 
-// ===== DATA MANAGEMENT: p1.json 불러오기 =====
-async function loadFromP1Json() {
-  closeDataModal();
+// ===== API FUNCTIONS =====
+async function loadMembers() {
   try {
-    showToast('p1.json 데이터를 불러오는 중...', 'info');
-    const res = await fetch('p1.json');
-    if (!res.ok) throw new Error('파일을 찾을 수 없습니다');
-    const data = await res.json();
-    
-    if (!Array.isArray(data)) {
-      showToast('올바른 JSON 배열 형식이 아닙니다', 'error');
-      return;
-    }
-    
-    // p1.json 형식 변환: 연번, 검정일자, 성명, 나이, 성별, 연락처, 판정
-    const converted = data.map(item => ({
-      id: generateId(),
-      name: item['성명'] || item.name || '',
-      age: item['나이'] || item.age || 0,
-      gender: item['성별'] || item.gender || '',
-      phone: item['연락처'] || item.phone || '',
-      status: item['판정'] || item.status || '교육전',
-      exam_date: item['검정일자'] || item.exam_date || '',
-      personality: item['성격'] || item.personality || '',
-      notes: item['특이사항'] || item.notes || '',
-      reg_date: item['검정일자'] || item.reg_date || new Date().toISOString(),
-      seq: item['연번'] || item.seq || 0
-    }));
-    
-    // 기존 데이터에 추가 (중복 체크: 이름+연락처)
-    let addedCount = 0;
-    converted.forEach(newM => {
-      const exists = members.some(m => m.name === newM.name && m.phone === newM.phone);
-      if (!exists) {
-        members.push(newM);
-        addedCount++;
-      }
-    });
-    
-    saveMembers();
+    const res = await fetch('tables/members?limit=1000&sort=-created_at');
+    const json = await res.json();
+    members = json.data || [];
     renderMemberList();
     updateStats();
     renderBulkMemberList();
-    showToast(`p1.json에서 ${addedCount}명의 회원을 불러왔습니다 (중복 ${converted.length - addedCount}명 제외)`, 'success');
   } catch (e) {
-    console.error('Failed to load p1.json:', e);
-    showToast('p1.json 파일을 불러오는데 실패했습니다: ' + e.message, 'error');
+    console.error('Failed to load members:', e);
+    members = [];
+    renderMemberList();
   }
 }
 
-// ===== DATA MANAGEMENT: JSON 파일 불러오기 (기기에서) =====
-function handleFileImport(event) {
-  closeDataModal();
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      
-      if (!Array.isArray(data)) {
-        showToast('올바른 JSON 배열 형식이 아닙니다', 'error');
-        return;
-      }
-      
-      // 유연한 필드명 매핑
-      const converted = data.map(item => ({
-        id: item.id || generateId(),
-        name: item['성명'] || item.name || '',
-        age: item['나이'] || item.age || 0,
-        gender: item['성별'] || item.gender || '',
-        phone: item['연락처'] || item.phone || '',
-        status: item['판정'] || item.status || '교육전',
-        exam_date: item['검정일자'] || item.exam_date || '',
-        personality: item['성격'] || item.personality || '',
-        notes: item['특이사항'] || item.notes || '',
-        reg_date: item['검정일자'] || item.reg_date || new Date().toISOString(),
-        seq: item['연번'] || item.seq || 0
-      }));
-      
-      let addedCount = 0;
-      converted.forEach(newM => {
-        const exists = members.some(m => m.name === newM.name && m.phone === newM.phone);
-        if (!exists) {
-          members.push(newM);
-          addedCount++;
-        }
-      });
-      
-      saveMembers();
-      renderMemberList();
-      updateStats();
-      renderBulkMemberList();
-      showToast(`${file.name}에서 ${addedCount}명의 회원을 불러왔습니다`, 'success');
-    } catch (err) {
-      showToast('JSON 파일 파싱에 실패했습니다: ' + err.message, 'error');
-    }
-  };
-  reader.readAsText(file);
-  // Reset file input
-  event.target.value = '';
+async function createMember(data) {
+  const res = await fetch('tables/members', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return await res.json();
 }
 
-// ===== DATA MANAGEMENT: JSON으로 내보내기 =====
-function exportToJson() {
-  closeDataModal();
-  if (members.length === 0) {
-    showToast('내보낼 회원 데이터가 없습니다', 'error');
-    return;
-  }
-  
-  // p1.json과 호환되는 형식으로 내보내기
-  const exportData = members.map((m, idx) => ({
-    '연번': m.seq || idx + 1,
-    '검정일자': m.exam_date || '',
-    '성명': m.name || '',
-    '나이': m.age || 0,
-    '성별': m.gender || '',
-    '연락처': m.phone || '',
-    '판정': m.status || '교육전',
-    '성격': m.personality || '',
-    '특이사항': m.notes || ''
-  }));
-  
-  const jsonStr = JSON.stringify(exportData, null, 2);
-  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-  a.download = `회원데이터_${dateStr}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  showToast(`${members.length}명의 회원 데이터를 내보냈습니다`, 'success');
+async function updateMember(id, data) {
+  const res = await fetch(`tables/members/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return await res.json();
 }
 
-// ===== DATA MANAGEMENT: 전체 삭제 =====
-function confirmClearData() {
-  closeDataModal();
-  document.getElementById('clearDataModal').classList.add('active');
-}
-
-function clearAllData() {
-  members = [];
-  activityLogs = [];
-  saveMembers();
-  saveLogs();
-  renderMemberList();
-  updateStats();
-  renderBulkMemberList();
-  document.getElementById('clearDataModal').classList.remove('active');
-  showToast('모든 데이터가 삭제되었습니다', 'success');
-}
-
-// ===== DATA MODAL =====
-function openDataModal() {
-  document.getElementById('dataModal').classList.add('active');
-}
-
-function closeDataModal() {
-  document.getElementById('dataModal').classList.remove('active');
+async function deleteMember(id) {
+  await fetch(`tables/members/${id}`, { method: 'DELETE' });
 }
 
 // ===== RENDER MEMBER LIST =====
@@ -1758,7 +1425,7 @@ function renderMemberList(filtered) {
       <div class="empty-state">
         <i class="fas fa-user-friends"></i>
         <h3>등록된 회원이 없습니다</h3>
-        <p>+ 버튼을 눌러 회원을 등록하거나<br>데이터관리에서 p1.json을 불러오세요</p>
+        <p>+ 버튼을 눌러 회원을 등록해 보세요</p>
       </div>`;
     return;
   }
@@ -1774,7 +1441,6 @@ function renderMemberList(filtered) {
           <span class="age-gender">${m.age || '-'}세 / ${m.gender || '-'}</span>
         </div>
         <div class="phone"><i class="fas fa-phone-alt" style="font-size:12px;"></i> ${esc(m.phone || '-')}</div>
-        ${m.exam_date ? `<div class="exam-date"><i class="far fa-calendar" style="font-size:11px;"></i> 검정일: ${m.exam_date}</div>` : ''}
         <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>
       </div>
       <div class="member-actions" onclick="event.stopPropagation();">
@@ -1807,16 +1473,14 @@ function updateStats() {
   document.getElementById('statTotal').textContent = members.length;
   document.getElementById('statTraining').textContent = members.filter(m => m.status === '교육중').length;
   document.getElementById('statPass').textContent = members.filter(m => m.status === '합격').length;
-  document.getElementById('statFail').textContent = members.filter(m => m.status === '불합격').length;
 }
 
-// ===== SAVE MEMBER (LocalStorage) =====
-function saveMember() {
+// ===== SAVE MEMBER =====
+async function saveMember() {
   const name = document.getElementById('fName').value.trim();
   const age = document.getElementById('fAge').value;
   const gender = document.getElementById('fGender').value;
   const phone = document.getElementById('fPhone').value.trim();
-  const examDate = document.getElementById('fExamDate').value;
   const personality = document.getElementById('fPersonality').value;
   const status = document.getElementById('fStatus').value;
   const notes = document.getElementById('fNotes').value.trim();
@@ -1827,46 +1491,31 @@ function saveMember() {
   if (!gender) { showToast('성별을 선택해주세요', 'error'); return; }
   if (!phone) { showToast('전화번호를 입력해주세요', 'error'); return; }
 
-  if (editId) {
-    // 수정 모드
-    const idx = members.findIndex(m => m.id === editId);
-    if (idx !== -1) {
-      members[idx].name = name;
-      members[idx].age = parseInt(age);
-      members[idx].gender = gender;
-      members[idx].phone = phone;
-      members[idx].exam_date = examDate;
-      members[idx].personality = personality;
-      members[idx].status = status;
-      members[idx].notes = notes;
-    }
-    showToast(`${name} 회원 정보가 수정되었습니다`, 'success');
-  } else {
-    // 신규 등록
-    const newMember = {
-      id: generateId(),
-      name,
-      age: parseInt(age),
-      gender,
-      phone,
-      exam_date: examDate,
-      personality,
-      status,
-      notes,
-      reg_date: new Date().toISOString(),
-      seq: members.length + 1
-    };
-    members.push(newMember);
-    showToast(`${name} 회원이 등록되었습니다`, 'success');
-    logActivity('new_member', '', name, `${name} 회원 신규 등록`);
-  }
+  const data = {
+    name, age: parseInt(age), gender, phone,
+    personality, status, notes,
+    reg_date: editId ? undefined : new Date().toISOString()
+  };
 
-  saveMembers();
-  resetForm();
-  renderMemberList();
-  updateStats();
-  renderBulkMemberList();
-  switchPage('list');
+  // remove undefined fields
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+
+  try {
+    if (editId) {
+      await updateMember(editId, data);
+      showToast(`${name} 회원 정보가 수정되었습니다`, 'success');
+    } else {
+      await createMember(data);
+      showToast(`${name} 회원이 등록되었습니다`, 'success');
+      logActivity('new_member', '', name, `${name} 회원 신규 등록`);
+    }
+    resetForm();
+    await loadMembers();
+    switchPage('list');
+  } catch (e) {
+    showToast('저장에 실패했습니다', 'error');
+    console.error(e);
+  }
 }
 
 // ===== RESET FORM =====
@@ -1876,7 +1525,6 @@ function resetForm() {
   document.getElementById('fAge').value = '';
   document.getElementById('fGender').value = '';
   document.getElementById('fPhone').value = '';
-  document.getElementById('fExamDate').value = '';
   document.getElementById('fPersonality').value = '';
   document.getElementById('fStatus').value = '교육전';
   document.getElementById('fNotes').value = '';
@@ -1909,10 +1557,6 @@ function viewDetail(id) {
         <div class="detail-item">
           <div class="label"><i class="fas fa-venus-mars"></i> 성별</div>
           <div class="value">${m.gender || '-'}</div>
-        </div>
-        <div class="detail-item">
-          <div class="label"><i class="fas fa-calendar-check"></i> 검정일</div>
-          <div class="value">${m.exam_date || '-'}</div>
         </div>
         <div class="detail-item">
           <div class="label"><i class="fas fa-smile"></i> 성격</div>
@@ -1953,7 +1597,6 @@ function editMember(id) {
   document.getElementById('fAge').value = m.age || '';
   document.getElementById('fGender').value = m.gender || '';
   document.getElementById('fPhone').value = m.phone || '';
-  document.getElementById('fExamDate').value = m.exam_date || '';
   document.getElementById('fPersonality').value = m.personality || '';
   document.getElementById('fStatus').value = m.status || '교육전';
   document.getElementById('fNotes').value = m.notes || '';
@@ -1975,20 +1618,18 @@ function closeDeleteModal() {
   deleteTargetId = null;
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!deleteTargetId) return;
-  const idx = members.findIndex(m => m.id === deleteTargetId);
-  if (idx !== -1) {
-    members.splice(idx, 1);
-    saveMembers();
-  }
-  showToast('회원이 삭제되었습니다', 'success');
-  closeDeleteModal();
-  renderMemberList();
-  updateStats();
-  renderBulkMemberList();
-  if (document.getElementById('page-detail').classList.contains('active')) {
-    switchPage('list');
+  try {
+    await deleteMember(deleteTargetId);
+    showToast('회원이 삭제되었습니다', 'success');
+    closeDeleteModal();
+    await loadMembers();
+    if (document.getElementById('page-detail').classList.contains('active')) {
+      switchPage('list');
+    }
+  } catch (e) {
+    showToast('삭제에 실패했습니다', 'error');
   }
 }
 
@@ -2038,6 +1679,7 @@ function sendSMS() {
   const cleanPhone = m.phone.replace(/[^0-9]/g, '');
   const encoded = encodeURIComponent(text);
 
+  // iOS: sms:number&body=text / Android: sms:number?body=text
   const ua = navigator.userAgent.toLowerCase();
   const sep = /iphone|ipad|ipod/.test(ua) ? '&' : '?';
   window.location.href = `sms:${cleanPhone}${sep}body=${encoded}`;
@@ -2124,6 +1766,7 @@ function sendBulkSMS() {
   const phoneStr = phones.join(',');
   window.location.href = `sms:${phoneStr}${sep}body=${encoded}`;
 
+  // Log bulk sms
   const names = [];
   checked.forEach(cb => { if (cb.dataset.name) names.push(cb.dataset.name); });
   logActivity('bulk_sms', '', names[0] || '', `${phones.length}명에게 단체 문자 발송`, phones.length);
@@ -2144,23 +1787,31 @@ function switchPage(page) {
   const pageEl = document.getElementById(`page-${page}`);
   if (pageEl) pageEl.classList.add('active');
 
+  // Update tab active state
   const tabMap = { list: 0, add: 1, bulksms: 2, stats: 3 };
   if (tabMap[page] !== undefined) {
     document.querySelectorAll('.nav-tab')[tabMap[page]].classList.add('active');
   }
 
+  // FAB visibility
   const fab = document.getElementById('fab');
   fab.style.display = (page === 'list') ? 'flex' : 'none';
 
+  // Refresh bulk list when switching to bulksms
   if (page === 'bulksms') renderBulkMemberList();
+
+  // Refresh stats when switching to stats
   if (page === 'stats') loadStatsData();
 
+  // If going to add page fresh (not edit), reset form
   if (page === 'add' && !document.getElementById('editId').value) {
     resetForm();
   }
 
+  // Track previous page for back button
   if (page !== 'sms') previousPage = page;
 
+  // Scroll to top
   window.scrollTo(0, 0);
 }
 
@@ -2190,21 +1841,24 @@ function formatPhone(input) {
   input.value = val;
 }
 
-// ===== ACTIVITY LOG (LocalStorage) =====
-function logActivity(type, memberId, memberName, detail, count = 1) {
-  const log = {
-    id: generateId(),
-    type,
-    member_id: memberId || '',
-    member_name: memberName || '',
-    detail: detail || '',
-    count,
-    log_date: new Date().toISOString()
-  };
-  activityLogs.unshift(log); // 최신이 먼저
-  // 최대 500개까지만 보관
-  if (activityLogs.length > 500) activityLogs = activityLogs.slice(0, 500);
-  saveLogs();
+// ===== ACTIVITY LOG =====
+async function logActivity(type, memberId, memberName, detail, count = 1) {
+  try {
+    await fetch('tables/activity_logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type,
+        member_id: memberId || '',
+        member_name: memberName || '',
+        detail: detail || '',
+        count,
+        log_date: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error('Failed to log activity:', e);
+  }
 }
 
 // ===== STATS =====
@@ -2212,6 +1866,7 @@ let statsPeriod = 'daily';
 let statsBaseDate = new Date();
 let statsBarChart = null;
 let statsPieChart = null;
+let activityLogs = [];
 
 function setStatsPeriod(period) {
   statsPeriod = period;
@@ -2235,6 +1890,7 @@ function getStatsDateRange() {
   let start, end, label, labels = [], ranges = [];
 
   if (statsPeriod === 'daily') {
+    // Show 7 days ending at base
     label = `${base.getFullYear()}.${String(base.getMonth()+1).padStart(2,'0')}.${String(base.getDate()).padStart(2,'0')}`;
     for (let i = 6; i >= 0; i--) {
       const d = new Date(base);
@@ -2247,6 +1903,7 @@ function getStatsDateRange() {
     start = ranges[0].start;
     end = ranges[ranges.length-1].end;
   } else if (statsPeriod === 'weekly') {
+    // Show 4 weeks ending at base week
     const dayOfWeek = base.getDay();
     const weekStart = new Date(base);
     weekStart.setDate(weekStart.getDate() - dayOfWeek);
@@ -2262,6 +1919,7 @@ function getStatsDateRange() {
     start = ranges[0].start;
     end = ranges[ranges.length-1].end;
   } else if (statsPeriod === 'monthly') {
+    // Show 6 months ending at base month
     label = `${base.getFullYear()}년 ${base.getMonth()+1}월`;
     for (let i = 5; i >= 0; i--) {
       const ms = new Date(base.getFullYear(), base.getMonth() - i, 1);
@@ -2272,6 +1930,7 @@ function getStatsDateRange() {
     start = ranges[0].start;
     end = ranges[ranges.length-1].end;
   } else {
+    // yearly: Show 5 years ending at base year
     label = `${base.getFullYear()}년`;
     for (let i = 4; i >= 0; i--) {
       const ys = new Date(base.getFullYear() - i, 0, 1);
@@ -2286,23 +1945,33 @@ function getStatsDateRange() {
   return { label, labels, ranges, start, end };
 }
 
-function loadStatsData() {
+async function loadStatsData() {
   const { label, labels, ranges, start, end } = getStatsDateRange();
   document.getElementById('statsDateLabel').textContent = label;
 
+  // Load activity logs
+  try {
+    const res = await fetch('tables/activity_logs?limit=10000&sort=-created_at');
+    const json = await res.json();
+    activityLogs = json.data || [];
+  } catch (e) {
+    activityLogs = [];
+  }
+
   // Filter logs for current range (total period)
   const periodLogs = activityLogs.filter(l => {
-    const d = new Date(l.log_date);
+    const d = new Date(l.log_date || l.created_at);
     return d >= start && d < end;
   });
 
   // Current sub-period (last item in ranges) for summary
   const currentRange = ranges[ranges.length - 1];
   const currentLogs = activityLogs.filter(l => {
-    const d = new Date(l.log_date);
+    const d = new Date(l.log_date || l.created_at);
     return d >= currentRange.start && d < currentRange.end;
   });
 
+  // Summary counts for current period
   const callCount = currentLogs.filter(l => l.type === 'call').length;
   const smsCount = currentLogs.filter(l => l.type === 'sms' || l.type === 'bulk_sms')
     .reduce((sum, l) => sum + (l.count || 1), 0);
@@ -2312,19 +1981,22 @@ function loadStatsData() {
   document.getElementById('statsSmsCount').textContent = smsCount;
   document.getElementById('statsNewMember').textContent = newMemberCount;
 
+  // Also count new members from members table if no log
   const memberNewCount = countNewMembersInRange(currentRange.start, currentRange.end);
   if (newMemberCount === 0 && memberNewCount > 0) {
     document.getElementById('statsNewMember').textContent = memberNewCount;
   }
 
+  // Build chart data per range bucket
   const callData = [], smsData = [], memberData = [];
   ranges.forEach(r => {
     const rl = activityLogs.filter(l => {
-      const d = new Date(l.log_date);
+      const d = new Date(l.log_date || l.created_at);
       return d >= r.start && d < r.end;
     });
     callData.push(rl.filter(l => l.type === 'call').length);
     smsData.push(rl.filter(l => l.type === 'sms' || l.type === 'bulk_sms').reduce((s, l) => s + (l.count || 1), 0));
+    // New members from logs or from members table
     const logNewM = rl.filter(l => l.type === 'new_member').length;
     const tableNewM = countNewMembersInRange(r.start, r.end);
     memberData.push(Math.max(logNewM, tableNewM));
@@ -2332,17 +2004,19 @@ function loadStatsData() {
 
   renderStatsBarChart(labels, callData, smsData, memberData);
 
+  // Pie chart - totals across all displayed ranges
   const totalCalls = callData.reduce((a,b) => a+b, 0);
   const totalSms = smsData.reduce((a,b) => a+b, 0);
   const totalNew = memberData.reduce((a,b) => a+b, 0);
   renderStatsPieChart(totalCalls, totalSms, totalNew);
 
+  // Recent log list
   renderRecentLogs();
 }
 
 function countNewMembersInRange(start, end) {
   return members.filter(m => {
-    const d = new Date(m.reg_date);
+    const d = new Date(m.reg_date || m.created_at);
     return d >= start && d < end;
   }).length;
 }
@@ -2462,7 +2136,7 @@ function renderRecentLogs() {
   };
 
   list.innerHTML = recent.map(l => {
-    const dt = new Date(l.log_date);
+    const dt = new Date(l.log_date || l.created_at);
     const timeStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
     const icon = typeIcons[l.type] || 'fa-circle';
     const label = typeLabels[l.type] || l.type;
