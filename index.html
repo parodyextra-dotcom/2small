@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2종소형면허 회원관리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #dbeafe;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --warning: #ea580c;
+  --warning-light: #fff7ed;
+  --danger: #dc2626;
+  --danger-light: #fef2f2;
+  --purple: #7c3aed;
+  --purple-light: #f3e8ff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #f0f4ff;
+  color: var(--gray-800);
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-top h1 {
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-top h1 i { font-size: 24px; }
+
+.header-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 12px;
+}
+
+.stat-badge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-badge .num { font-weight: 700; font-size: 15px; }
+
+/* ===== NAVIGATION TABS ===== */
+.nav-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky;
+  top: 92px;
+  z-index: 99;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 14px 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-500);
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-tab i { font-size: 18px; }
+.nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+.nav-tab:hover:not(.active) { color: var(--gray-700); background: var(--gray-50); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ===== SEARCH & FILTER BAR ===== */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.search-input-wrap i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  font-size: 16px;
+}
+
+.search-input-wrap input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.search-input-wrap input:focus { outline: none; border-color: var(--primary); }
+
+.filter-select {
+  padding: 12px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.filter-select:focus { outline: none; border-color: var(--primary); }
+
+/* ===== MEMBER CARD LIST ===== */
+.member-list { display: flex; flex-direction: column; gap: 12px; }
+
+.member-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.member-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.member-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.avatar-male { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.avatar-female { background: linear-gradient(135deg, #ec4899, #be185d); }
+
+.member-info { flex: 1; min-width: 0; }
+
+.member-info .top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.member-info .name { font-size: 16px; font-weight: 600; }
+
+.member-info .age-gender {
+  font-size: 12px;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.member-info .phone {
+  font-size: 14px;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+
+.status-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-교육전 { background: var(--gray-100); color: var(--gray-600); }
+.status-교육중 { background: var(--primary-light); color: var(--primary); }
+.status-시험대기 { background: var(--warning-light); color: var(--warning); }
+.status-합격 { background: var(--success-light); color: var(--success); }
+.status-불합격 { background: var(--danger-light); color: var(--danger); }
+
+.member-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.btn-icon.call { background: var(--success-light); color: var(--success); }
+.btn-icon.call:hover { background: var(--success); color: white; }
+.btn-icon.sms { background: var(--primary-light); color: var(--primary); }
+.btn-icon.sms:hover { background: var(--primary); color: white; }
+.btn-icon.delete { background: var(--danger-light); color: var(--danger); }
+.btn-icon.delete:hover { background: var(--danger); color: white; }
+
+/* ===== FORM ===== */
+.form-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.form-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-800);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.form-group label .required { color: var(--danger); margin-left: 2px; }
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { outline: none; border-color: var(--primary); }
+
+.form-group textarea { resize: vertical; min-height: 100px; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #15803d; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+.btn-secondary { background: var(--gray-200); color: var(--gray-700); }
+.btn-secondary:hover { background: var(--gray-300); }
+.btn-purple { background: var(--purple); color: white; }
+.btn-purple:hover { background: #6d28d9; }
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-group .btn { flex: 1; }
+
+/* ===== DETAIL VIEW ===== */
+.detail-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  padding: 24px;
+  text-align: center;
+}
+
+.detail-header .avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+  border: 3px solid rgba(255,255,255,0.4);
+}
+
+.detail-header h2 { font-size: 22px; margin-bottom: 4px; }
+.detail-header .sub { opacity: 0.8; font-size: 14px; }
+
+.detail-body { padding: 20px; }
+
+.detail-item {
+  display: flex;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-100);
+  align-items: flex-start;
+}
+
+.detail-item:last-child { border-bottom: none; }
+
+.detail-item .label {
+  width: 90px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.detail-item .value {
+  flex: 1;
+  font-size: 15px;
+  color: var(--gray-800);
+  word-break: break-all;
+}
+
+.detail-actions {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.detail-actions .btn { font-size: 14px; padding: 12px 16px; }
+
+/* ===== SMS PAGE ===== */
+.sms-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.sms-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sms-recipient {
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.sms-recipient i { font-size: 18px; }
+
+.sms-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sms-template-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 2px solid var(--gray-200);
+  background: white;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--gray-600);
+}
+
+.sms-template-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+.sms-textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.sms-textarea:focus { outline: none; border-color: var(--primary); }
+
+.char-count {
+  text-align: right;
+  font-size: 13px;
+  color: var(--gray-400);
+  margin-top: 6px;
+}
+
+.bulk-select-area {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.bulk-member-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bulk-member-item:hover { background: var(--gray-50); }
+.bulk-member-item:last-child { border-bottom: none; }
+
+.bulk-member-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.bulk-member-item .info { flex: 1; }
+.bulk-member-item .info .name { font-weight: 600; font-size: 15px; }
+.bulk-member-item .info .phone { font-size: 13px; color: var(--gray-500); }
+
+.select-all-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--gray-50);
+  border-bottom: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.select-all-bar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.selected-count { font-size: 13px; color: var(--primary); font-weight: 600; }
+
+/* ===== FLOATING ACTION BUTTON ===== */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+  transition: all 0.3s;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(37,99,235,0.5); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal-box {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.modal-box h3 { font-size: 18px; margin-bottom: 10px; }
+.modal-box p { font-size: 14px; color: var(--gray-500); margin-bottom: 20px; line-height: 1.6; }
+.modal-box .btn-group { margin-top: 0; }
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--gray-800);
+  color: white;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.info { background: var(--primary); }
+
+@keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray-400);
+}
+
+.empty-state i { font-size: 60px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state h3 { font-size: 18px; color: var(--gray-500); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; }
+
+/* ===== LOADING ===== */
+.loading-spinner {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray-400);
+}
+
+.loading-spinner i { font-size: 30px; animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .header-top h1 { font-size: 17px; }
+  .header-top h1 i { font-size: 20px; }
+  .header-stats { gap: 8px; }
+  .stat-badge { font-size: 11px; padding: 4px 10px; }
+  .stat-badge .num { font-size: 13px; }
+  .nav-tab { font-size: 12px; padding: 10px 4px; }
+  .nav-tab i { font-size: 16px; }
+  .main-content { padding: 14px; }
+  .form-row { grid-template-columns: 1fr; }
+  .detail-actions { grid-template-columns: 1fr; }
+  .member-card { padding: 12px; gap: 10px; }
+  .member-avatar { width: 44px; height: 44px; font-size: 16px; }
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--gray-500);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 16px;
+  font-family: inherit;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.back-btn:hover { color: var(--primary); background: var(--primary-light); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-top">
+    <h1><i class="fas fa-motorcycle"></i> 2종소형 회원관리</h1>
+    <div style="font-size:13px; opacity:0.8;"><i class="far fa-calendar-alt"></i> <span id="todayDate"></span></div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-badge"><i class="fas fa-users"></i> 전체 <span class="num" id="statTotal">0</span></div>
+    <div class="stat-badge"><i class="fas fa-book-open"></i> 교육중 <span class="num" id="statTraining">0</span></div>
+    <div class="stat-badge"><i class="fas fa-trophy"></i> 합격 <span class="num" id="statPass">0</span></div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="switchPage('list')"><i class="fas fa-list"></i> 회원목록</button>
+  <button class="nav-tab" onclick="switchPage('add')"><i class="fas fa-user-plus"></i> 회원등록</button>
+  <button class="nav-tab" onclick="switchPage('bulksms')"><i class="fas fa-paper-plane"></i> 단체문자</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <!-- ========== LIST PAGE ========== -->
+  <div id="page-list" class="page active">
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="이름, 전화번호 검색..." oninput="filterMembers()">
+      </div>
+      <select class="filter-select" id="filterStatus" onchange="filterMembers()">
+        <option value="">전체 상태</option>
+        <option value="교육전">교육전</option>
+        <option value="교육중">교육중</option>
+        <option value="시험대기">시험대기</option>
+        <option value="합격">합격</option>
+        <option value="불합격">불합격</option>
+      </select>
+      <select class="filter-select" id="filterGender" onchange="filterMembers()">
+        <option value="">전체 성별</option>
+        <option value="남">남성</option>
+        <option value="여">여성</option>
+      </select>
+    </div>
+    <div id="memberList" class="member-list"></div>
+  </div>
+
+  <!-- ========== ADD / EDIT PAGE ========== -->
+  <div id="page-add" class="page">
+    <div class="form-card">
+      <h2 id="formTitle"><i class="fas fa-user-plus"></i> 회원 등록</h2>
+      <input type="hidden" id="editId">
+      <div class="form-row">
+        <div class="form-group">
+          <label>이름 <span class="required">*</span></label>
+          <input type="text" id="fName" placeholder="홍길동">
+        </div>
+        <div class="form-group">
+          <label>나이 <span class="required">*</span></label>
+          <input type="number" id="fAge" placeholder="25" min="16" max="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>성별 <span class="required">*</span></label>
+          <select id="fGender">
+            <option value="">선택</option>
+            <option value="남">남</option>
+            <option value="여">여</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>전화번호 <span class="required">*</span></label>
+          <input type="tel" id="fPhone" placeholder="010-0000-0000" oninput="formatPhone(this)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>성격</label>
+          <select id="fPersonality">
+            <option value="">선택</option>
+            <option value="외향적">외향적</option>
+            <option value="내향적">내향적</option>
+            <option value="활발함">활발함</option>
+            <option value="차분함">차분함</option>
+            <option value="꼼꼼함">꼼꼼함</option>
+            <option value="급한편">급한편</option>
+            <option value="느긋함">느긋함</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>진행상태</label>
+          <select id="fStatus">
+            <option value="교육전">교육전</option>
+            <option value="교육중">교육중</option>
+            <option value="시험대기">시험대기</option>
+            <option value="합격">합격</option>
+            <option value="불합격">불합격</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>특이사항</label>
+        <textarea id="fNotes" placeholder="특이사항을 입력하세요 (예: 안경 착용, 왼손잡이 등)"></textarea>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="resetForm(); switchPage('list');"><i class="fas fa-times"></i> 취소</button>
+        <button class="btn btn-primary" onclick="saveMember()"><i class="fas fa-check"></i> <span id="saveBtn">저장</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== DETAIL PAGE ========== -->
+  <div id="page-detail" class="page">
+    <button class="back-btn" onclick="switchPage('list')"><i class="fas fa-arrow-left"></i> 회원목록</button>
+    <div id="detailContent"></div>
+  </div>
+
+  <!-- ========== INDIVIDUAL SMS PAGE ========== -->
+  <div id="page-sms" class="page">
+    <button class="back-btn" onclick="switchPage('detail')"><i class="fas fa-arrow-left"></i> 돌아가기</button>
+    <div class="sms-card">
+      <h2><i class="fas fa-comment-dots"></i> 개별 문자 보내기</h2>
+      <div class="sms-recipient" id="smsRecipient"></div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:14px; font-weight:600; color:var(--gray-700); display:block; margin-bottom:8px;">빠른 템플릿</label>
+        <div class="sms-templates">
+          <button class="sms-template-btn" onclick="useTemplate('수업안내')">📚 수업안내</button>
+          <button class="sms-template-btn" onclick="useTemplate('시험일정')">📝 시험일정</button>
+          <button class="sms-template-btn" onclick="useTemplate('합격축하')">🎉 합격축하</button>
+          <button class="sms-template-btn" onclick="useTemplate('일정변경')">📅 일정변경</button>
+          <button class="sms-template-btn" onclick="useTemplate('준비물안내')">🎒 준비물안내</button>
+        </div>
+      </div>
+      <textarea class="sms-textarea" id="smsText" placeholder="문자 내용을 입력하세요..." oninput="updateCharCount()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 2000자</div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="switchPage('detail')"><i class="fas fa-times"></i> 취소</button>
+        <button class="btn btn-primary" onclick="sendSMS()"><i class="fas fa-paper-plane"></i> 문자 보내기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== BULK SMS PAGE ========== -->
+  <div id="page-bulksms" class="page">
+    <div class="sms-card">
+      <h2><i class="fas fa-paper-plane"></i> 단체 문자 보내기</h2>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:14px; font-weight:600; color:var(--gray-700); display:block; margin-bottom:8px;">수신자 선택</label>
+        <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('all')">전체선택</button>
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('교육전')">교육전</button>
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('교육중')">교육중</button>
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('시험대기')">시험대기</button>
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('합격')">합격</button>
+          <button class="sms-template-btn" onclick="bulkSelectByStatus('불합격')">불합격</button>
+        </div>
+      </div>
+      <div class="bulk-select-area">
+        <div class="select-all-bar">
+          <label><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"> 전체 선택</label>
+          <span class="selected-count" id="selectedCount">0명 선택</span>
+        </div>
+        <div id="bulkMemberList"></div>
+      </div>
+      <div style="margin-bottom:12px; margin-top:16px;">
+        <label style="font-size:14px; font-weight:600; color:var(--gray-700); display:block; margin-bottom:8px;">빠른 템플릿</label>
+        <div class="sms-templates">
+          <button class="sms-template-btn" onclick="useBulkTemplate('수업안내')">📚 수업안내</button>
+          <button class="sms-template-btn" onclick="useBulkTemplate('시험일정')">📝 시험일정</button>
+          <button class="sms-template-btn" onclick="useBulkTemplate('합격축하')">🎉 합격축하</button>
+          <button class="sms-template-btn" onclick="useBulkTemplate('일정변경')">📅 일정변경</button>
+          <button class="sms-template-btn" onclick="useBulkTemplate('준비물안내')">🎒 준비물안내</button>
+        </div>
+      </div>
+      <textarea class="sms-textarea" id="bulkSmsText" placeholder="문자 내용을 입력하세요..." oninput="updateBulkCharCount()"></textarea>
+      <div class="char-count"><span id="bulkCharCount">0</span> / 2000자</div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="switchPage('list')"><i class="fas fa-times"></i> 취소</button>
+        <button class="btn btn-purple" onclick="sendBulkSMS()"><i class="fas fa-paper-plane"></i> 단체 문자 보내기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FAB (회원 등록) -->
+<button class="fab" onclick="switchPage('add')" id="fab" title="회원 등록"><i class="fas fa-plus"></i></button>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h3><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> 회원 삭제</h3>
+    <p id="deleteMsg">이 회원을 정말 삭제하시겠습니까?</p>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">취소</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- SMS RESULT MODAL -->
+<div class="modal-overlay" id="smsModal">
+  <div class="modal-box">
+    <div style="font-size:50px; margin-bottom:12px;">✅</div>
+    <h3>문자 전송 준비 완료</h3>
+    <p id="smsModalMsg">기본 문자 앱으로 연결됩니다.</p>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="closeSmsModal()">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== GLOBAL STATE =====
+let members = [];
+let currentMemberId = null;
+let deleteTargetId = null;
+let previousPage = 'list';
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('todayDate').textContent = formatDate(new Date());
+  loadMembers();
+});
+
+// ===== API FUNCTIONS =====
+async function loadMembers() {
+  try {
+    const res = await fetch('tables/members?limit=1000&sort=-created_at');
+    const json = await res.json();
+    members = json.data || [];
+    renderMemberList();
+    updateStats();
+    renderBulkMemberList();
+  } catch (e) {
+    console.error('Failed to load members:', e);
+    members = [];
+    renderMemberList();
+  }
+}
+
+async function createMember(data) {
+  const res = await fetch('tables/members', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return await res.json();
+}
+
+async function updateMember(id, data) {
+  const res = await fetch(`tables/members/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  return await res.json();
+}
+
+async function deleteMember(id) {
+  await fetch(`tables/members/${id}`, { method: 'DELETE' });
+}
+
+// ===== RENDER MEMBER LIST =====
+function renderMemberList(filtered) {
+  const list = document.getElementById('memberList');
+  const data = filtered || members;
+
+  if (data.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-user-friends"></i>
+        <h3>등록된 회원이 없습니다</h3>
+        <p>+ 버튼을 눌러 회원을 등록해 보세요</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = data.map(m => `
+    <div class="member-card" onclick="viewDetail('${m.id}')">
+      <div class="member-avatar ${m.gender === '여' ? 'avatar-female' : 'avatar-male'}">
+        ${(m.name || '?')[0]}
+      </div>
+      <div class="member-info">
+        <div class="top-row">
+          <span class="name">${esc(m.name)}</span>
+          <span class="age-gender">${m.age || '-'}세 / ${m.gender || '-'}</span>
+        </div>
+        <div class="phone"><i class="fas fa-phone-alt" style="font-size:12px;"></i> ${esc(m.phone || '-')}</div>
+        <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>
+      </div>
+      <div class="member-actions" onclick="event.stopPropagation();">
+        <button class="btn-icon call" onclick="callMember('${esc(m.phone)}')" title="전화"><i class="fas fa-phone"></i></button>
+        <button class="btn-icon sms" onclick="openIndividualSMS('${m.id}')" title="문자"><i class="fas fa-comment"></i></button>
+        <button class="btn-icon delete" onclick="openDeleteModal('${m.id}', '${esc(m.name)}')" title="삭제"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== FILTER =====
+function filterMembers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const gender = document.getElementById('filterGender').value;
+
+  const filtered = members.filter(m => {
+    const matchSearch = !q || (m.name || '').toLowerCase().includes(q) || (m.phone || '').includes(q);
+    const matchStatus = !status || m.status === status;
+    const matchGender = !gender || m.gender === gender;
+    return matchSearch && matchStatus && matchGender;
+  });
+
+  renderMemberList(filtered);
+}
+
+// ===== UPDATE STATS =====
+function updateStats() {
+  document.getElementById('statTotal').textContent = members.length;
+  document.getElementById('statTraining').textContent = members.filter(m => m.status === '교육중').length;
+  document.getElementById('statPass').textContent = members.filter(m => m.status === '합격').length;
+}
+
+// ===== SAVE MEMBER =====
+async function saveMember() {
+  const name = document.getElementById('fName').value.trim();
+  const age = document.getElementById('fAge').value;
+  const gender = document.getElementById('fGender').value;
+  const phone = document.getElementById('fPhone').value.trim();
+  const personality = document.getElementById('fPersonality').value;
+  const status = document.getElementById('fStatus').value;
+  const notes = document.getElementById('fNotes').value.trim();
+  const editId = document.getElementById('editId').value;
+
+  if (!name) { showToast('이름을 입력해주세요', 'error'); return; }
+  if (!age) { showToast('나이를 입력해주세요', 'error'); return; }
+  if (!gender) { showToast('성별을 선택해주세요', 'error'); return; }
+  if (!phone) { showToast('전화번호를 입력해주세요', 'error'); return; }
+
+  const data = {
+    name, age: parseInt(age), gender, phone,
+    personality, status, notes,
+    reg_date: editId ? undefined : new Date().toISOString()
+  };
+
+  // remove undefined fields
+  Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+
+  try {
+    if (editId) {
+      await updateMember(editId, data);
+      showToast(`${name} 회원 정보가 수정되었습니다`, 'success');
+    } else {
+      await createMember(data);
+      showToast(`${name} 회원이 등록되었습니다`, 'success');
+    }
+    resetForm();
+    await loadMembers();
+    switchPage('list');
+  } catch (e) {
+    showToast('저장에 실패했습니다', 'error');
+    console.error(e);
+  }
+}
+
+// ===== RESET FORM =====
+function resetForm() {
+  document.getElementById('editId').value = '';
+  document.getElementById('fName').value = '';
+  document.getElementById('fAge').value = '';
+  document.getElementById('fGender').value = '';
+  document.getElementById('fPhone').value = '';
+  document.getElementById('fPersonality').value = '';
+  document.getElementById('fStatus').value = '교육전';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('formTitle').innerHTML = '<i class="fas fa-user-plus"></i> 회원 등록';
+  document.getElementById('saveBtn').textContent = '저장';
+}
+
+// ===== VIEW DETAIL =====
+function viewDetail(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  currentMemberId = id;
+
+  const html = `
+    <div class="detail-card">
+      <div class="detail-header">
+        <div class="avatar">${(m.name || '?')[0]}</div>
+        <h2>${esc(m.name)}</h2>
+        <div class="sub">${m.age || '-'}세 · ${m.gender || '-'} · ${m.personality || '-'}</div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-phone-alt"></i> 전화</div>
+          <div class="value">${esc(m.phone || '-')}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-birthday-cake"></i> 나이</div>
+          <div class="value">${m.age || '-'}세</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-venus-mars"></i> 성별</div>
+          <div class="value">${m.gender || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-smile"></i> 성격</div>
+          <div class="value">${m.personality || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-flag"></i> 상태</div>
+          <div class="value"><span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span></div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-sticky-note"></i> 특이사항</div>
+          <div class="value">${esc(m.notes || '없음')}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="far fa-calendar"></i> 등록일</div>
+          <div class="value">${m.reg_date ? formatDate(new Date(m.reg_date)) : '-'}</div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-success" onclick="callMember('${esc(m.phone)}')"><i class="fas fa-phone"></i> 전화걸기</button>
+        <button class="btn btn-primary" onclick="openIndividualSMS('${m.id}')"><i class="fas fa-comment"></i> 문자보내기</button>
+        <button class="btn btn-secondary" onclick="editMember('${m.id}')"><i class="fas fa-edit"></i> 수정하기</button>
+        <button class="btn btn-danger" onclick="openDeleteModal('${m.id}', '${esc(m.name)}')"><i class="fas fa-trash"></i> 삭제하기</button>
+      </div>
+    </div>`;
+
+  document.getElementById('detailContent').innerHTML = html;
+  switchPage('detail');
+}
+
+// ===== EDIT MEMBER =====
+function editMember(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+
+  document.getElementById('editId').value = m.id;
+  document.getElementById('fName').value = m.name || '';
+  document.getElementById('fAge').value = m.age || '';
+  document.getElementById('fGender').value = m.gender || '';
+  document.getElementById('fPhone').value = m.phone || '';
+  document.getElementById('fPersonality').value = m.personality || '';
+  document.getElementById('fStatus').value = m.status || '교육전';
+  document.getElementById('fNotes').value = m.notes || '';
+  document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> 회원 수정';
+  document.getElementById('saveBtn').textContent = '수정';
+
+  switchPage('add');
+}
+
+// ===== DELETE =====
+function openDeleteModal(id, name) {
+  deleteTargetId = id;
+  document.getElementById('deleteMsg').textContent = `"${name}" 회원을 정말 삭제하시겠습니까?`;
+  document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('active');
+  deleteTargetId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  try {
+    await deleteMember(deleteTargetId);
+    showToast('회원이 삭제되었습니다', 'success');
+    closeDeleteModal();
+    await loadMembers();
+    if (document.getElementById('page-detail').classList.contains('active')) {
+      switchPage('list');
+    }
+  } catch (e) {
+    showToast('삭제에 실패했습니다', 'error');
+  }
+}
+
+// ===== PHONE / SMS =====
+function callMember(phone) {
+  if (!phone || phone === '-') { showToast('전화번호가 없습니다', 'error'); return; }
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  window.location.href = `tel:${cleanPhone}`;
+}
+
+function openIndividualSMS(id) {
+  const m = members.find(x => x.id === id);
+  if (!m) return;
+  currentMemberId = id;
+  document.getElementById('smsRecipient').innerHTML = `<i class="fas fa-user"></i> ${esc(m.name)} (${esc(m.phone || '-')})`;
+  document.getElementById('smsText').value = '';
+  document.getElementById('charCount').textContent = '0';
+  switchPage('sms');
+}
+
+function useTemplate(type) {
+  const m = members.find(x => x.id === currentMemberId);
+  const name = m ? m.name : '';
+  const templates = {
+    '수업안내': `[2종소형면허]\n${name}님 안녕하세요!\n교육 일정 안내드립니다.\n\n📅 일시: \n📍 장소: \n\n참석 부탁드립니다. 감사합니다.`,
+    '시험일정': `[2종소형면허]\n${name}님 안녕하세요!\n시험 일정 안내드립니다.\n\n📝 시험일: \n📍 장소: \n🕐 시간: \n\n준비물: 신분증, 필기도구\n합격을 기원합니다! 💪`,
+    '합격축하': `[2종소형면허]\n${name}님 축하합니다! 🎉\n2종소형면허 시험에 합격하셨습니다!\n\n면허증 발급 절차는 별도 안내드리겠습니다.\n다시 한번 축하드립니다! 🏆`,
+    '일정변경': `[2종소형면허]\n${name}님 안녕하세요.\n일정 변경 안내드립니다.\n\n📅 변경 전: \n📅 변경 후: \n\n불편을 드려 죄송합니다.\n문의사항은 연락 부탁드립니다.`,
+    '준비물안내': `[2종소형면허]\n${name}님 안녕하세요!\n교육 준비물 안내드립니다.\n\n✅ 신분증\n✅ 편한 복장\n✅ 장갑 (권장)\n✅ 필기도구\n\n안전 운행 파이팅! 🏍️`
+  };
+  document.getElementById('smsText').value = templates[type] || '';
+  updateCharCount();
+}
+
+function updateCharCount() {
+  const len = document.getElementById('smsText').value.length;
+  document.getElementById('charCount').textContent = len;
+}
+
+function sendSMS() {
+  const m = members.find(x => x.id === currentMemberId);
+  if (!m || !m.phone) { showToast('전화번호가 없습니다', 'error'); return; }
+  const text = document.getElementById('smsText').value;
+  if (!text.trim()) { showToast('문자 내용을 입력해주세요', 'error'); return; }
+
+  const cleanPhone = m.phone.replace(/[^0-9]/g, '');
+  const encoded = encodeURIComponent(text);
+
+  // iOS: sms:number&body=text / Android: sms:number?body=text
+  const ua = navigator.userAgent.toLowerCase();
+  const sep = /iphone|ipad|ipod/.test(ua) ? '&' : '?';
+  window.location.href = `sms:${cleanPhone}${sep}body=${encoded}`;
+
+  document.getElementById('smsModalMsg').textContent = `${m.name}님에게 문자 앱이 열립니다.`;
+  document.getElementById('smsModal').classList.add('active');
+}
+
+// ===== BULK SMS =====
+function renderBulkMemberList() {
+  const list = document.getElementById('bulkMemberList');
+  if (members.length === 0) {
+    list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--gray-400);">등록된 회원이 없습니다</div>';
+    return;
+  }
+  list.innerHTML = members.map(m => `
+    <div class="bulk-member-item">
+      <input type="checkbox" class="bulk-check" value="${m.id}" data-phone="${esc(m.phone || '')}" data-name="${esc(m.name || '')}" data-status="${m.status || ''}" onchange="updateSelectedCount()">
+      <div class="info">
+        <div class="name">${esc(m.name)} <span class="status-tag status-${m.status || '교육전'}" style="font-size:11px;">${m.status || '교육전'}</span></div>
+        <div class="phone">${esc(m.phone || '-')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('selectAll').checked;
+  document.querySelectorAll('.bulk-check').forEach(cb => cb.checked = checked);
+  updateSelectedCount();
+}
+
+function bulkSelectByStatus(status) {
+  document.querySelectorAll('.bulk-check').forEach(cb => {
+    if (status === 'all') {
+      cb.checked = true;
+    } else {
+      cb.checked = cb.dataset.status === status;
+    }
+  });
+  document.getElementById('selectAll').checked = status === 'all';
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.bulk-check:checked').length;
+  document.getElementById('selectedCount').textContent = `${count}명 선택`;
+}
+
+function useBulkTemplate(type) {
+  const templates = {
+    '수업안내': `[2종소형면허]\n안녕하세요!\n교육 일정 안내드립니다.\n\n📅 일시: \n📍 장소: \n\n참석 부탁드립니다. 감사합니다.`,
+    '시험일정': `[2종소형면허]\n안녕하세요!\n시험 일정 안내드립니다.\n\n📝 시험일: \n📍 장소: \n🕐 시간: \n\n준비물: 신분증, 필기도구\n합격을 기원합니다! 💪`,
+    '합격축하': `[2종소형면허]\n축하합니다! 🎉\n2종소형면허 시험에 합격하셨습니다!\n\n면허증 발급 절차는 별도 안내드리겠습니다.\n다시 한번 축하드립니다! 🏆`,
+    '일정변경': `[2종소형면허]\n안녕하세요.\n일정 변경 안내드립니다.\n\n📅 변경 전: \n📅 변경 후: \n\n불편을 드려 죄송합니다.\n문의사항은 연락 부탁드립니다.`,
+    '준비물안내': `[2종소형면허]\n안녕하세요!\n교육 준비물 안내드립니다.\n\n✅ 신분증\n✅ 편한 복장\n✅ 장갑 (권장)\n✅ 필기도구\n\n안전 운행 파이팅! 🏍️`
+  };
+  document.getElementById('bulkSmsText').value = templates[type] || '';
+  updateBulkCharCount();
+}
+
+function updateBulkCharCount() {
+  const len = document.getElementById('bulkSmsText').value.length;
+  document.getElementById('bulkCharCount').textContent = len;
+}
+
+function sendBulkSMS() {
+  const checked = document.querySelectorAll('.bulk-check:checked');
+  if (checked.length === 0) { showToast('수신자를 선택해주세요', 'error'); return; }
+  const text = document.getElementById('bulkSmsText').value;
+  if (!text.trim()) { showToast('문자 내용을 입력해주세요', 'error'); return; }
+
+  const phones = [];
+  checked.forEach(cb => {
+    if (cb.dataset.phone) phones.push(cb.dataset.phone.replace(/[^0-9]/g, ''));
+  });
+
+  if (phones.length === 0) { showToast('전화번호가 있는 회원이 없습니다', 'error'); return; }
+
+  const encoded = encodeURIComponent(text);
+  const ua = navigator.userAgent.toLowerCase();
+  const sep = /iphone|ipad|ipod/.test(ua) ? '&' : '?';
+  const phoneStr = phones.join(',');
+  window.location.href = `sms:${phoneStr}${sep}body=${encoded}`;
+
+  document.getElementById('smsModalMsg').textContent = `${phones.length}명에게 문자 앱이 열립니다.`;
+  document.getElementById('smsModal').classList.add('active');
+}
+
+function closeSmsModal() {
+  document.getElementById('smsModal').classList.remove('active');
+}
+
+// ===== PAGE NAVIGATION =====
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+  const pageEl = document.getElementById(`page-${page}`);
+  if (pageEl) pageEl.classList.add('active');
+
+  // Update tab active state
+  const tabMap = { list: 0, add: 1, bulksms: 2 };
+  if (tabMap[page] !== undefined) {
+    document.querySelectorAll('.nav-tab')[tabMap[page]].classList.add('active');
+  }
+
+  // FAB visibility
+  const fab = document.getElementById('fab');
+  fab.style.display = (page === 'list') ? 'flex' : 'none';
+
+  // Refresh bulk list when switching to bulksms
+  if (page === 'bulksms') renderBulkMemberList();
+
+  // If going to add page fresh (not edit), reset form
+  if (page === 'add' && !document.getElementById('editId').value) {
+    resetForm();
+  }
+
+  // Track previous page for back button
+  if (page !== 'sms') previousPage = page;
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+// ===== UTILITIES =====
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}.${m}.${d}`;
+}
+
+function formatPhone(input) {
+  let val = input.value.replace(/[^0-9]/g, '');
+  if (val.length > 11) val = val.slice(0, 11);
+  if (val.length > 7) {
+    val = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7);
+  } else if (val.length > 3) {
+    val = val.slice(0, 3) + '-' + val.slice(3);
+  }
+  input.value = val;
+}
+
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: 'check-circle', error: 'exclamation-circle', info: 'info-circle' };
+  toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+</script>
+</body>
+</html>
