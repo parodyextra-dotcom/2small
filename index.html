@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --primary: #2563eb;
@@ -935,6 +936,191 @@ body {
 
 .stats-date-nav button:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
+/* ===== DAILY DETAIL STATS ===== */
+.detail-stats-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-stats-header h3 { margin-bottom: 0; }
+
+.detail-stats-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.detail-date-range label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+}
+
+.detail-date-range input[type="date"] {
+  padding: 8px 10px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--gray-700);
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.detail-date-range input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn-excel-download {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(22,163,74,0.3);
+}
+
+.btn-excel-download:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22,163,74,0.4);
+}
+
+.btn-excel-download:active {
+  transform: translateY(0);
+}
+
+.btn-excel-download i {
+  font-size: 14px;
+}
+
+.detail-stats-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.detail-summary-item {
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--gray-200);
+}
+
+.detail-summary-item .ds-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin-bottom: 4px;
+}
+
+.detail-summary-item .ds-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.detail-summary-item.type-call .ds-value { color: var(--success); }
+.detail-summary-item.type-sms .ds-value { color: var(--primary); }
+.detail-summary-item.type-bulk .ds-value { color: var(--purple); }
+.detail-summary-item.type-member .ds-value { color: var(--warning); }
+
+.detail-stats-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+}
+
+.detail-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 480px;
+}
+
+.detail-stats-table thead th {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  padding: 12px 10px;
+  font-weight: 600;
+  text-align: center;
+  font-size: 12px;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.detail-stats-table tbody td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+.detail-stats-table tbody tr:hover {
+  background: var(--primary-light);
+}
+
+.detail-stats-table tbody tr:nth-child(even) {
+  background: var(--gray-50);
+}
+
+.detail-stats-table tbody tr:nth-child(even):hover {
+  background: var(--primary-light);
+}
+
+.detail-stats-table tbody td:first-child {
+  font-weight: 600;
+  color: var(--gray-800);
+  white-space: nowrap;
+}
+
+.detail-stats-table tbody td.highlight-cell {
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.detail-stats-table tfoot td {
+  padding: 12px 10px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--gray-800);
+  background: linear-gradient(135deg, var(--primary-light), #e0e7ff);
+  border-top: 2px solid var(--primary);
+  font-size: 13px;
+}
+
+.detail-stats-table tfoot td:first-child {
+  color: var(--primary-dark);
+}
+
+.detail-stats-table .zero-val {
+  color: var(--gray-300);
+}
+
 @media (max-width: 600px) {
   .stats-summary { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .summary-card { padding: 12px 8px; }
@@ -942,6 +1128,12 @@ body {
   .summary-card .icon { width: 36px; height: 36px; font-size: 16px; }
   .chart-container { height: 220px; }
   .period-tab { font-size: 12px; padding: 8px 4px; }
+  .detail-stats-header { flex-direction: column; }
+  .detail-stats-actions { flex-direction: column; width: 100%; }
+  .detail-date-range { width: 100%; }
+  .detail-date-range input[type="date"] { flex: 1; min-width: 0; }
+  .btn-excel-download { width: 100%; justify-content: center; }
+  .detail-stats-summary { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* Scrollbar */
@@ -1399,6 +1591,44 @@ body {
     <div class="chart-card">
       <h3><i class="fas fa-chart-pie" style="color:var(--purple)"></i> 활동 비율</h3>
       <div class="chart-container" style="height:250px;"><canvas id="statsPieChart"></canvas></div>
+    </div>
+
+    <!-- Daily Detail Stats with Excel Download -->
+    <div class="chart-card">
+      <div class="detail-stats-header">
+        <h3><i class="fas fa-table" style="color:var(--success)"></i> 일별 상세 통계</h3>
+        <div class="detail-stats-actions">
+          <div class="detail-date-range">
+            <label>시작일</label>
+            <input type="date" id="detailStartDate" onchange="renderDailyDetailStats()">
+            <label>종료일</label>
+            <input type="date" id="detailEndDate" onchange="renderDailyDetailStats()">
+          </div>
+          <button class="btn-excel-download" onclick="exportDailyStatsToExcel()">
+            <i class="fas fa-file-excel"></i> 엑셀 다운로드
+          </button>
+        </div>
+      </div>
+      <div class="detail-stats-summary" id="detailStatsSummary"></div>
+      <div class="detail-stats-table-wrap">
+        <table class="detail-stats-table" id="dailyDetailTable">
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>전화 발신</th>
+              <th>문자 발송</th>
+              <th>단체문자</th>
+              <th>신규회원</th>
+              <th>합계</th>
+            </tr>
+          </thead>
+          <tbody id="dailyDetailBody">
+            <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--gray-400);">날짜를 선택하세요</td></tr>
+          </tbody>
+          <tfoot id="dailyDetailFoot">
+          </tfoot>
+        </table>
+      </div>
     </div>
 
     <!-- Recent Activity Log -->
@@ -2153,7 +2383,7 @@ function switchPage(page) {
   fab.style.display = (page === 'list') ? 'flex' : 'none';
 
   if (page === 'bulksms') renderBulkMemberList();
-  if (page === 'stats') loadStatsData();
+  if (page === 'stats') { loadStatsData(); initDailyDetailDates(); }
 
   if (page === 'add' && !document.getElementById('editId').value) {
     resetForm();
@@ -2487,6 +2717,337 @@ function showToast(msg, type = 'info') {
   toast.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i> ${msg}`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
+}
+
+// ===== DAILY DETAIL STATS & EXCEL EXPORT =====
+
+// 날짜 범위의 기본값 설정 (통계 페이지 진입 시)
+function initDailyDetailDates() {
+  const endInput = document.getElementById('detailEndDate');
+  const startInput = document.getElementById('detailStartDate');
+  if (!endInput.value) {
+    const today = new Date();
+    endInput.value = toDateInputValue(today);
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 30);
+    startInput.value = toDateInputValue(weekAgo);
+  }
+  renderDailyDetailStats();
+}
+
+function toDateInputValue(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getDailyDetailData() {
+  const startVal = document.getElementById('detailStartDate').value;
+  const endVal = document.getElementById('detailEndDate').value;
+
+  if (!startVal || !endVal) return [];
+
+  const startDate = new Date(startVal);
+  const endDate = new Date(endVal);
+
+  if (startDate > endDate) {
+    showToast('시작일이 종료일보다 클 수 없습니다', 'error');
+    return [];
+  }
+
+  // 최대 366일까지 허용
+  const dayDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+  if (dayDiff > 366) {
+    showToast('최대 1년(366일)까지 조회 가능합니다', 'error');
+    return [];
+  }
+
+  const result = [];
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+
+    const dayLogs = activityLogs.filter(l => {
+      const ld = new Date(l.log_date);
+      return ld >= dayStart && ld < dayEnd;
+    });
+
+    const calls = dayLogs.filter(l => l.type === 'call').length;
+    const sms = dayLogs.filter(l => l.type === 'sms').reduce((sum, l) => sum + (l.count || 1), 0);
+    const bulkSms = dayLogs.filter(l => l.type === 'bulk_sms').reduce((sum, l) => sum + (l.count || 1), 0);
+
+    // 신규회원: 활동로그 + 실제 회원 등록일자 기반 교차 확인
+    const logNewMembers = dayLogs.filter(l => l.type === 'new_member').length;
+    const tableNewMembers = members.filter(m => {
+      const rd = new Date(m.reg_date);
+      return rd >= dayStart && rd < dayEnd;
+    }).length;
+    const newMembers = Math.max(logNewMembers, tableNewMembers);
+
+    const total = calls + sms + bulkSms + newMembers;
+
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const dayName = dayNames[d.getDay()];
+
+    result.push({
+      date: dateStr,
+      dayName,
+      dayOfWeek: d.getDay(),
+      calls,
+      sms,
+      bulkSms,
+      newMembers,
+      total,
+      // 상세 로그 보관 (엑셀 상세 시트용)
+      callDetails: dayLogs.filter(l => l.type === 'call').map(l => ({
+        time: new Date(l.log_date).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}),
+        name: l.member_name || '-',
+        detail: l.detail || ''
+      })),
+      smsDetails: dayLogs.filter(l => l.type === 'sms' || l.type === 'bulk_sms').map(l => ({
+        time: new Date(l.log_date).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}),
+        name: l.member_name || '-',
+        type: l.type === 'bulk_sms' ? '단체문자' : '개별문자',
+        count: l.count || 1,
+        detail: l.detail || ''
+      })),
+      memberDetails: dayLogs.filter(l => l.type === 'new_member').map(l => ({
+        time: new Date(l.log_date).toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'}),
+        name: l.member_name || '-',
+        detail: l.detail || ''
+      }))
+    });
+  }
+
+  return result;
+}
+
+function renderDailyDetailStats() {
+  const data = getDailyDetailData();
+  const tbody = document.getElementById('dailyDetailBody');
+  const tfoot = document.getElementById('dailyDetailFoot');
+  const summaryEl = document.getElementById('detailStatsSummary');
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--gray-400);">날짜를 선택하세요</td></tr>';
+    tfoot.innerHTML = '';
+    summaryEl.innerHTML = '';
+    return;
+  }
+
+  // 합계 계산
+  const totals = data.reduce((acc, d) => ({
+    calls: acc.calls + d.calls,
+    sms: acc.sms + d.sms,
+    bulkSms: acc.bulkSms + d.bulkSms,
+    newMembers: acc.newMembers + d.newMembers,
+    total: acc.total + d.total
+  }), { calls: 0, sms: 0, bulkSms: 0, newMembers: 0, total: 0 });
+
+  // 요약 카드 렌더링
+  summaryEl.innerHTML = `
+    <div class="detail-summary-item type-call">
+      <div class="ds-label">전화 발신</div>
+      <div class="ds-value">${totals.calls}</div>
+    </div>
+    <div class="detail-summary-item type-sms">
+      <div class="ds-label">문자 발송</div>
+      <div class="ds-value">${totals.sms}</div>
+    </div>
+    <div class="detail-summary-item type-bulk">
+      <div class="ds-label">단체 문자</div>
+      <div class="ds-value">${totals.bulkSms}</div>
+    </div>
+    <div class="detail-summary-item type-member">
+      <div class="ds-label">신규 회원</div>
+      <div class="ds-value">${totals.newMembers}</div>
+    </div>
+  `;
+
+  // 테이블 본문 렌더링
+  tbody.innerHTML = data.map(d => {
+    const isWeekend = d.dayOfWeek === 0 || d.dayOfWeek === 6;
+    const weekendStyle = isWeekend ? (d.dayOfWeek === 0 ? 'color:var(--danger);' : 'color:var(--primary);') : '';
+    const cellVal = (v) => v === 0 ? '<span class="zero-val">0</span>' : `<strong>${v}</strong>`;
+
+    return `<tr>
+      <td style="${weekendStyle}">${d.date} (${d.dayName})</td>
+      <td>${cellVal(d.calls)}</td>
+      <td>${cellVal(d.sms)}</td>
+      <td>${cellVal(d.bulkSms)}</td>
+      <td>${cellVal(d.newMembers)}</td>
+      <td class="highlight-cell">${d.total}</td>
+    </tr>`;
+  }).join('');
+
+  // 합계 행 렌더링
+  tfoot.innerHTML = `<tr>
+    <td>📊 합계 (${data.length}일)</td>
+    <td>${totals.calls}</td>
+    <td>${totals.sms}</td>
+    <td>${totals.bulkSms}</td>
+    <td>${totals.newMembers}</td>
+    <td>${totals.total}</td>
+  </tr>`;
+}
+
+// ===== 엑셀 다운로드 기능 =====
+function exportDailyStatsToExcel() {
+  const data = getDailyDetailData();
+
+  if (data.length === 0) {
+    showToast('내보낼 데이터가 없습니다. 날짜를 선택해 주세요.', 'error');
+    return;
+  }
+
+  try {
+    const wb = XLSX.utils.book_new();
+
+    // ===== 시트 1: 일별 요약 =====
+    const summaryHeader = ['날짜', '요일', '전화 발신', '문자 발송', '단체 문자', '신규 회원', '합계'];
+    const summaryRows = data.map(d => [d.date, d.dayName, d.calls, d.sms, d.bulkSms, d.newMembers, d.total]);
+
+    // 합계 행 추가
+    const totals = data.reduce((acc, d) => ({
+      calls: acc.calls + d.calls,
+      sms: acc.sms + d.sms,
+      bulkSms: acc.bulkSms + d.bulkSms,
+      newMembers: acc.newMembers + d.newMembers,
+      total: acc.total + d.total
+    }), { calls: 0, sms: 0, bulkSms: 0, newMembers: 0, total: 0 });
+    summaryRows.push(['합계', `${data.length}일`, totals.calls, totals.sms, totals.bulkSms, totals.newMembers, totals.total]);
+
+    // 일평균 행 추가
+    const days = data.length || 1;
+    summaryRows.push([
+      '일평균', '-',
+      parseFloat((totals.calls / days).toFixed(1)),
+      parseFloat((totals.sms / days).toFixed(1)),
+      parseFloat((totals.bulkSms / days).toFixed(1)),
+      parseFloat((totals.newMembers / days).toFixed(1)),
+      parseFloat((totals.total / days).toFixed(1))
+    ]);
+
+    const summaryData = [summaryHeader, ...summaryRows];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+
+    // 열 너비 설정
+    ws1['!cols'] = [
+      { wch: 14 }, // 날짜
+      { wch: 6 },  // 요일
+      { wch: 12 }, // 전화 발신
+      { wch: 12 }, // 문자 발송
+      { wch: 12 }, // 단체 문자
+      { wch: 12 }, // 신규 회원
+      { wch: 10 }, // 합계
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws1, '일별 요약');
+
+    // ===== 시트 2: 전화 발신 상세 =====
+    const callHeader = ['날짜', '시간', '대상자', '메모'];
+    const callRows = [];
+    data.forEach(d => {
+      if (d.callDetails.length > 0) {
+        d.callDetails.forEach(c => {
+          callRows.push([d.date, c.time, c.name, c.detail]);
+        });
+      }
+    });
+    if (callRows.length === 0) {
+      callRows.push(['데이터 없음', '', '', '']);
+    }
+    const ws2 = XLSX.utils.aoa_to_sheet([callHeader, ...callRows]);
+    ws2['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, ws2, '전화 발신 상세');
+
+    // ===== 시트 3: 문자 발송 상세 =====
+    const smsHeader = ['날짜', '시간', '대상자', '유형', '건수', '메모'];
+    const smsRows = [];
+    data.forEach(d => {
+      if (d.smsDetails.length > 0) {
+        d.smsDetails.forEach(s => {
+          smsRows.push([d.date, s.time, s.name, s.type, s.count, s.detail]);
+        });
+      }
+    });
+    if (smsRows.length === 0) {
+      smsRows.push(['데이터 없음', '', '', '', '', '']);
+    }
+    const ws3 = XLSX.utils.aoa_to_sheet([smsHeader, ...smsRows]);
+    ws3['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 8 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, ws3, '문자 발송 상세');
+
+    // ===== 시트 4: 신규 회원 상세 =====
+    const memberHeader = ['날짜', '시간', '회원명', '메모'];
+    const memberRows = [];
+    data.forEach(d => {
+      if (d.memberDetails.length > 0) {
+        d.memberDetails.forEach(m => {
+          memberRows.push([d.date, m.time, m.name, m.detail]);
+        });
+      }
+    });
+    // 활동 로그에 없는 경우, 회원 데이터에서 직접 추출
+    if (memberRows.length === 0) {
+      const startDate = new Date(document.getElementById('detailStartDate').value);
+      const endDate = new Date(document.getElementById('detailEndDate').value);
+      endDate.setDate(endDate.getDate() + 1);
+      members.forEach(m => {
+        const rd = new Date(m.reg_date);
+        if (rd >= startDate && rd < endDate) {
+          const dateStr = `${rd.getFullYear()}.${String(rd.getMonth() + 1).padStart(2, '0')}.${String(rd.getDate()).padStart(2, '0')}`;
+          const timeStr = rd.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'});
+          memberRows.push([dateStr, timeStr, m.name, `${m.phone || ''} / ${m.status || ''}`]);
+        }
+      });
+    }
+    if (memberRows.length === 0) {
+      memberRows.push(['데이터 없음', '', '', '']);
+    }
+    const ws4 = XLSX.utils.aoa_to_sheet([memberHeader, ...memberRows]);
+    ws4['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, ws4, '신규 회원 상세');
+
+    // ===== 시트 5: 전체 회원 현황 =====
+    const allMemberHeader = ['번호', '이름', '나이', '성별', '연락처', '검정일자', '성격', '상태', '메모', '등록일'];
+    const allMemberRows = members.map((m, i) => [
+      i + 1,
+      m.name || '',
+      m.age || '',
+      m.gender === 'M' ? '남' : (m.gender === 'F' ? '여' : m.gender || ''),
+      m.phone || '',
+      m.exam_date || '',
+      m.personality || '',
+      m.status || '',
+      m.notes || '',
+      m.reg_date ? new Date(m.reg_date).toLocaleDateString('ko-KR') : ''
+    ]);
+    if (allMemberRows.length === 0) {
+      allMemberRows.push(['데이터 없음', '', '', '', '', '', '', '', '', '']);
+    }
+    const ws5 = XLSX.utils.aoa_to_sheet([allMemberHeader, ...allMemberRows]);
+    ws5['!cols'] = [
+      { wch: 6 }, { wch: 10 }, { wch: 6 }, { wch: 6 }, { wch: 14 },
+      { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }, { wch: 14 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws5, '전체 회원 현황');
+
+    // 파일명 생성
+    const startVal = document.getElementById('detailStartDate').value.replace(/-/g, '');
+    const endVal = document.getElementById('detailEndDate').value.replace(/-/g, '');
+    const fileName = `회원관리_일별통계_${startVal}_${endVal}.xlsx`;
+
+    // 다운로드
+    XLSX.writeFile(wb, fileName);
+    showToast(`엑셀 파일이 다운로드되었습니다 (${data.length}일 데이터)`, 'success');
+  } catch (e) {
+    console.error('Excel export error:', e);
+    showToast('엑셀 다운로드 중 오류가 발생했습니다', 'error');
+  }
 }
 </script>
 </body>
