@@ -1361,6 +1361,7 @@ body {
     <div class="stat-badge"><i class="fas fa-book-open"></i> 교육중 <span class="num" id="statTraining">0</span></div>
     <div class="stat-badge"><i class="fas fa-trophy"></i> 합격 <span class="num" id="statPass">0</span></div>
     <div class="stat-badge"><i class="fas fa-times-circle"></i> 불합격 <span class="num" id="statFail">0</span></div>
+    <div class="stat-badge" style="background:rgba(251,191,36,0.3);"><i class="fas fa-user-plus"></i> 신규(오늘) <span class="num" id="statNewToday">0</span></div>
   </div>
 </header>
 
@@ -1430,9 +1431,15 @@ body {
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>등록일자</label>
+          <input type="date" id="fRegDate">
+        </div>
+        <div class="form-group">
           <label>검정일자</label>
           <input type="date" id="fExamDate">
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>진행상태</label>
           <select id="fStatus">
@@ -1443,8 +1450,6 @@ body {
             <option value="불합격">불합격</option>
           </select>
         </div>
-      </div>
-      <div class="form-row">
         <div class="form-group">
           <label>성격</label>
           <select id="fPersonality">
@@ -1457,9 +1462,6 @@ body {
             <option value="급한편">급한편</option>
             <option value="느긋함">느긋함</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label>&nbsp;</label>
         </div>
       </div>
       <div class="form-group">
@@ -1517,6 +1519,7 @@ body {
           <button class="sms-template-btn" onclick="bulkSelectByStatus('시험대기')">시험대기</button>
           <button class="sms-template-btn" onclick="bulkSelectByStatus('합격')">합격</button>
           <button class="sms-template-btn" onclick="bulkSelectByStatus('불합격')">불합격</button>
+          <button class="sms-template-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-weight:600;" onclick="bulkSelectGraduates1Year()">🎓 1년이내 수강생</button>
         </div>
       </div>
       <div class="bulk-select-area">
@@ -1534,6 +1537,7 @@ body {
           <button class="sms-template-btn" onclick="useBulkTemplate('합격축하')">🎉 합격축하</button>
           <button class="sms-template-btn" onclick="useBulkTemplate('일정변경')">📅 일정변경</button>
           <button class="sms-template-btn" onclick="useBulkTemplate('준비물안내')">🎒 준비물안내</button>
+          <button class="sms-template-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-weight:600;" onclick="useBulkTemplate('졸업생홍보')">🎓 졸업생홍보</button>
         </div>
       </div>
       <textarea class="sms-textarea" id="bulkSmsText" placeholder="문자 내용을 입력하세요..." oninput="updateBulkCharCount()"></textarea>
@@ -1981,7 +1985,13 @@ function closeDataModal() {
 // ===== RENDER MEMBER LIST =====
 function renderMemberList(filtered) {
   const list = document.getElementById('memberList');
-  const data = filtered || members;
+  // 최신 등록순으로 정렬 (reg_date 기준 내림차순)
+  const sorted = (filtered || members).slice().sort((a, b) => {
+    const da = a.reg_date ? new Date(a.reg_date).getTime() : 0;
+    const db = b.reg_date ? new Date(b.reg_date).getTime() : 0;
+    return db - da;
+  });
+  const data = sorted;
 
   if (data.length === 0) {
     list.innerHTML = `
@@ -2004,6 +2014,7 @@ function renderMemberList(filtered) {
           <span class="age-gender">${m.age || '-'}세 / ${m.gender || '-'}</span>
         </div>
         <div class="phone"><i class="fas fa-phone-alt" style="font-size:12px;"></i> ${esc(m.phone || '-')}</div>
+        ${m.reg_date ? `<div class="exam-date"><i class="fas fa-clock" style="font-size:11px; color:var(--primary);"></i> 등록: ${formatDate(new Date(m.reg_date))}</div>` : ''}
         ${m.exam_date ? `<div class="exam-date"><i class="far fa-calendar" style="font-size:11px;"></i> 검정일: ${m.exam_date}</div>` : ''}
         <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>
       </div>
@@ -2038,6 +2049,17 @@ function updateStats() {
   document.getElementById('statTraining').textContent = members.filter(m => m.status === '교육중').length;
   document.getElementById('statPass').textContent = members.filter(m => m.status === '합격').length;
   document.getElementById('statFail').textContent = members.filter(m => m.status === '불합격').length;
+
+  // 신규회원 카운터 (오늘 등록일 기준)
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  const newToday = members.filter(m => {
+    if (!m.reg_date) return false;
+    const rd = new Date(m.reg_date);
+    return rd >= todayStart && rd < todayEnd;
+  }).length;
+  document.getElementById('statNewToday').textContent = newToday;
 }
 
 // ===== SAVE MEMBER (LocalStorage) =====
@@ -2046,6 +2068,7 @@ function saveMember() {
   const age = document.getElementById('fAge').value;
   const gender = document.getElementById('fGender').value;
   const phone = document.getElementById('fPhone').value.trim();
+  const regDate = document.getElementById('fRegDate').value;
   const examDate = document.getElementById('fExamDate').value;
   const personality = document.getElementById('fPersonality').value;
   const status = document.getElementById('fStatus').value;
@@ -2066,6 +2089,7 @@ function saveMember() {
       members[idx].gender = gender;
       members[idx].phone = phone;
       members[idx].exam_date = examDate;
+      if (regDate) members[idx].reg_date = new Date(regDate).toISOString();
       members[idx].personality = personality;
       members[idx].status = status;
       members[idx].notes = notes;
@@ -2083,7 +2107,7 @@ function saveMember() {
       personality,
       status,
       notes,
-      reg_date: new Date().toISOString(),
+      reg_date: regDate ? new Date(regDate).toISOString() : new Date().toISOString(),
       seq: members.length + 1
     };
     members.push(newMember);
@@ -2106,6 +2130,7 @@ function resetForm() {
   document.getElementById('fAge').value = '';
   document.getElementById('fGender').value = '';
   document.getElementById('fPhone').value = '';
+  document.getElementById('fRegDate').value = '';
   document.getElementById('fExamDate').value = '';
   document.getElementById('fPersonality').value = '';
   document.getElementById('fStatus').value = '교육전';
@@ -2141,6 +2166,10 @@ function viewDetail(id) {
           <div class="value">${m.gender || '-'}</div>
         </div>
         <div class="detail-item">
+          <div class="label"><i class="fas fa-clock"></i> 등록일</div>
+          <div class="value">${m.reg_date ? formatDate(new Date(m.reg_date)) : '-'}</div>
+        </div>
+        <div class="detail-item">
           <div class="label"><i class="fas fa-calendar-check"></i> 검정일</div>
           <div class="value">${m.exam_date || '-'}</div>
         </div>
@@ -2155,10 +2184,6 @@ function viewDetail(id) {
         <div class="detail-item">
           <div class="label"><i class="fas fa-sticky-note"></i> 특이사항</div>
           <div class="value">${esc(m.notes || '없음')}</div>
-        </div>
-        <div class="detail-item">
-          <div class="label"><i class="far fa-calendar"></i> 등록일</div>
-          <div class="value">${m.reg_date ? formatDate(new Date(m.reg_date)) : '-'}</div>
         </div>
       </div>
       <div class="detail-actions">
@@ -2183,6 +2208,7 @@ function editMember(id) {
   document.getElementById('fAge').value = m.age || '';
   document.getElementById('fGender').value = m.gender || '';
   document.getElementById('fPhone').value = m.phone || '';
+  document.getElementById('fRegDate').value = m.reg_date ? toDateInputValue(new Date(m.reg_date)) : '';
   document.getElementById('fExamDate').value = m.exam_date || '';
   document.getElementById('fPersonality').value = m.personality || '';
   document.getElementById('fStatus').value = m.status || '교육전';
@@ -2284,15 +2310,17 @@ function renderBulkMemberList() {
     list.innerHTML = '<div style="padding:20px; text-align:center; color:var(--gray-400);">등록된 회원이 없습니다</div>';
     return;
   }
-  list.innerHTML = members.map(m => `
+  list.innerHTML = members.map(m => {
+    const regDateStr = m.reg_date ? formatDate(new Date(m.reg_date)) : '';
+    return `
     <div class="bulk-member-item">
-      <input type="checkbox" class="bulk-check" value="${m.id}" data-phone="${esc(m.phone || '')}" data-name="${esc(m.name || '')}" data-status="${m.status || ''}" onchange="updateSelectedCount()">
+      <input type="checkbox" class="bulk-check" value="${m.id}" data-phone="${esc(m.phone || '')}" data-name="${esc(m.name || '')}" data-status="${m.status || ''}" data-regdate="${m.reg_date || ''}" onchange="updateSelectedCount()">
       <div class="info">
         <div class="name">${esc(m.name)} <span class="status-tag status-${m.status || '교육전'}" style="font-size:11px;">${m.status || '교육전'}</span></div>
-        <div class="phone">${esc(m.phone || '-')}</div>
+        <div class="phone">${esc(m.phone || '-')}${regDateStr ? ` · 등록: ${regDateStr}` : ''}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleSelectAll() {
@@ -2313,6 +2341,35 @@ function bulkSelectByStatus(status) {
   updateSelectedCount();
 }
 
+// 1년 이내 수강생(졸업생) 선택
+function bulkSelectGraduates1Year() {
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  const graduateIds = new Set();
+  members.forEach(m => {
+    // 합격 상태이거나, 등록일이 1년 이내인 모든 회원
+    const regDate = m.reg_date ? new Date(m.reg_date) : null;
+    if (regDate && regDate >= oneYearAgo) {
+      graduateIds.add(m.id);
+    }
+  });
+
+  let selectedCount = 0;
+  document.querySelectorAll('.bulk-check').forEach(cb => {
+    cb.checked = graduateIds.has(cb.value);
+    if (cb.checked) selectedCount++;
+  });
+  document.getElementById('selectAll').checked = false;
+  updateSelectedCount();
+
+  if (selectedCount === 0) {
+    showToast('1년 이내 수강생이 없습니다', 'info');
+  } else {
+    showToast(`1년 이내 수강생 ${selectedCount}명이 선택되었습니다`, 'success');
+  }
+}
+
 function updateSelectedCount() {
   const count = document.querySelectorAll('.bulk-check:checked').length;
   document.getElementById('selectedCount').textContent = `${count}명 선택`;
@@ -2324,7 +2381,8 @@ function useBulkTemplate(type) {
     '시험일정': `[2종소형면허]\n안녕하세요!\n시험 일정 안내드립니다.\n\n📝 시험일: \n📍 장소: \n🕐 시간: \n\n준비물: 신분증, 필기도구\n합격을 기원합니다! 💪`,
     '합격축하': `[2종소형면허]\n축하합니다! 🎉\n2종소형면허 시험에 합격하셨습니다!\n\n면허증 발급 절차는 별도 안내드리겠습니다.\n다시 한번 축하드립니다! 🏆`,
     '일정변경': `[2종소형면허]\n안녕하세요.\n일정 변경 안내드립니다.\n\n📅 변경 전: \n📅 변경 후: \n\n불편을 드려 죄송합니다.\n문의사항은 연락 부탁드립니다.`,
-    '준비물안내': `[2종소형면허]\n안녕하세요!\n교육 준비물 안내드립니다.\n\n✅ 신분증\n✅ 편한 복장\n✅ 장갑 (권장)\n✅ 필기도구\n\n안전 운행 파이팅! 🏍️`
+    '준비물안내': `[2종소형면허]\n안녕하세요!\n교육 준비물 안내드립니다.\n\n✅ 신분증\n✅ 편한 복장\n✅ 장갑 (권장)\n✅ 필기도구\n\n안전 운행 파이팅! 🏍️`,
+    '졸업생홍보': `[한정자동차학원]\n안녕하세요, 한정자동차학원입니다.\n\n예전에 저희 학원에서 면허 취득하셨던 분이시죠?\n오랜만에 인사드리는데, 요즘 운전은 잘 하고 계신가요?\n\n다름 아니라 감사 인사도 드릴 겸 연락드렸고요.\n이번에 소형차를 아벨라300 새 차로 모두 바꿨습니다.\n\n혹시 주변에 면허 준비 하시는 분 계시면\n부담 없이 저희 학원 한 번 소개 부탁드려도 괜찮을까요?\n\n감사합니다 🙏`
   };
   document.getElementById('bulkSmsText').value = templates[type] || '';
   updateBulkCharCount();
