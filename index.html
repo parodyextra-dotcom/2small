@@ -1441,6 +1441,27 @@ body {
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>지역</label>
+          <input type="text" id="fRegion" placeholder="예: 서울, 경기 수원, 부산">
+        </div>
+        <div class="form-group">
+          <label>직업</label>
+          <input type="text" id="fJob" placeholder="예: 회사원, 학생, 자영업">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>등록이유</label>
+          <select id="fRegReason">
+            <option value="">선택</option>
+            <option value="소개">소개</option>
+            <option value="인터넷검색">인터넷검색</option>
+            <option value="유튜브">유튜브</option>
+            <option value="전단지">전단지</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>진행상태</label>
           <select id="fStatus">
             <option value="교육전">교육전</option>
@@ -1450,6 +1471,8 @@ body {
             <option value="불합격">불합격</option>
           </select>
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label>성격</label>
           <select id="fPersonality">
@@ -1462,6 +1485,9 @@ body {
             <option value="급한편">급한편</option>
             <option value="느긋함">느긋함</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
         </div>
       </div>
       <div class="form-group">
@@ -1609,7 +1635,7 @@ body {
             <input type="date" id="detailEndDate" onchange="renderDailyDetailStats()">
           </div>
           <button class="btn-excel-download" onclick="exportDailyStatsToExcel()">
-            <i class="fas fa-file-excel"></i> 엑셀 다운로드
+            <i class="fas fa-file-excel"></i> 엑셀 + 그래프 다운로드
           </button>
         </div>
       </div>
@@ -1838,6 +1864,9 @@ async function loadFromP1Json() {
       exam_date: item['검정일자'] || item.exam_date || '',
       personality: item['성격'] || item.personality || '',
       notes: item['특이사항'] || item.notes || '',
+      region: item['지역'] || item.region || '',
+      job: item['직업'] || item.job || '',
+      reg_reason: item['등록이유'] || item.reg_reason || '',
       reg_date: item['검정일자'] || item.reg_date || new Date().toISOString(),
       seq: item['연번'] || item.seq || 0
     }));
@@ -1890,6 +1919,9 @@ function handleFileImport(event) {
         exam_date: item['검정일자'] || item.exam_date || '',
         personality: item['성격'] || item.personality || '',
         notes: item['특이사항'] || item.notes || '',
+        region: item['지역'] || item.region || '',
+        job: item['직업'] || item.job || '',
+        reg_reason: item['등록이유'] || item.reg_reason || '',
         reg_date: item['검정일자'] || item.reg_date || new Date().toISOString(),
         seq: item['연번'] || item.seq || 0
       }));
@@ -1928,14 +1960,18 @@ function exportToJson() {
   // p1.json과 호환되는 형식으로 내보내기
   const exportData = members.map((m, idx) => ({
     '연번': m.seq || idx + 1,
-    '검정일자': m.exam_date || '',
     '성명': m.name || '',
     '나이': m.age || 0,
     '성별': m.gender || '',
     '연락처': m.phone || '',
+    '지역': m.region || '',
+    '직업': m.job || '',
+    '등록이유': m.reg_reason || '',
+    '검정일자': m.exam_date || '',
     '판정': m.status || '교육전',
     '성격': m.personality || '',
-    '특이사항': m.notes || ''
+    '특이사항': m.notes || '',
+    '등록일': m.reg_date || ''
   }));
   
   const jsonStr = JSON.stringify(exportData, null, 2);
@@ -2013,10 +2049,10 @@ function renderMemberList(filtered) {
           <span class="name">${esc(m.name)}</span>
           <span class="age-gender">${m.age || '-'}세 / ${m.gender || '-'}</span>
         </div>
-        <div class="phone"><i class="fas fa-phone-alt" style="font-size:12px;"></i> ${esc(m.phone || '-')}</div>
-        ${m.reg_date ? `<div class="exam-date"><i class="fas fa-clock" style="font-size:11px; color:var(--primary);"></i> 등록: ${formatDate(new Date(m.reg_date))}</div>` : ''}
+        <div class="phone"><i class="fas fa-phone-alt" style="font-size:12px;"></i> ${esc(m.phone || '-')}${m.region ? ` · <i class="fas fa-map-marker-alt" style="font-size:10px;"></i> ${esc(m.region)}` : ''}</div>
+        ${m.reg_date ? `<div class="exam-date"><i class="fas fa-clock" style="font-size:11px; color:var(--primary);"></i> 등록: ${formatDate(new Date(m.reg_date))}${m.reg_reason ? ` (${esc(m.reg_reason)})` : ''}</div>` : ''}
         ${m.exam_date ? `<div class="exam-date"><i class="far fa-calendar" style="font-size:11px;"></i> 검정일: ${m.exam_date}</div>` : ''}
-        <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>
+        <span class="status-tag status-${m.status || '교육전'}">${m.status || '교육전'}</span>${m.job ? `<span class="status-tag" style="background:#f0f4ff; color:var(--primary); margin-left:4px;">${esc(m.job)}</span>` : ''}
       </div>
       <div class="member-actions" onclick="event.stopPropagation();">
         <button class="btn-icon call" onclick="callMember('${esc(m.phone)}', '${esc(m.name)}')" title="전화"><i class="fas fa-phone"></i></button>
@@ -2070,6 +2106,9 @@ function saveMember() {
   const phone = document.getElementById('fPhone').value.trim();
   const regDate = document.getElementById('fRegDate').value;
   const examDate = document.getElementById('fExamDate').value;
+  const region = document.getElementById('fRegion').value.trim();
+  const job = document.getElementById('fJob').value.trim();
+  const regReason = document.getElementById('fRegReason').value;
   const personality = document.getElementById('fPersonality').value;
   const status = document.getElementById('fStatus').value;
   const notes = document.getElementById('fNotes').value.trim();
@@ -2090,6 +2129,9 @@ function saveMember() {
       members[idx].phone = phone;
       members[idx].exam_date = examDate;
       if (regDate) members[idx].reg_date = new Date(regDate).toISOString();
+      members[idx].region = region;
+      members[idx].job = job;
+      members[idx].reg_reason = regReason;
       members[idx].personality = personality;
       members[idx].status = status;
       members[idx].notes = notes;
@@ -2104,6 +2146,9 @@ function saveMember() {
       gender,
       phone,
       exam_date: examDate,
+      region,
+      job,
+      reg_reason: regReason,
       personality,
       status,
       notes,
@@ -2132,6 +2177,9 @@ function resetForm() {
   document.getElementById('fPhone').value = '';
   document.getElementById('fRegDate').value = '';
   document.getElementById('fExamDate').value = '';
+  document.getElementById('fRegion').value = '';
+  document.getElementById('fJob').value = '';
+  document.getElementById('fRegReason').value = '';
   document.getElementById('fPersonality').value = '';
   document.getElementById('fStatus').value = '교육전';
   document.getElementById('fNotes').value = '';
@@ -2174,6 +2222,18 @@ function viewDetail(id) {
           <div class="value">${m.exam_date || '-'}</div>
         </div>
         <div class="detail-item">
+          <div class="label"><i class="fas fa-map-marker-alt"></i> 지역</div>
+          <div class="value">${esc(m.region || '-')}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-briefcase"></i> 직업</div>
+          <div class="value">${esc(m.job || '-')}</div>
+        </div>
+        <div class="detail-item">
+          <div class="label"><i class="fas fa-bullhorn"></i> 등록이유</div>
+          <div class="value">${esc(m.reg_reason || '-')}</div>
+        </div>
+        <div class="detail-item">
           <div class="label"><i class="fas fa-smile"></i> 성격</div>
           <div class="value">${m.personality || '-'}</div>
         </div>
@@ -2210,6 +2270,9 @@ function editMember(id) {
   document.getElementById('fPhone').value = m.phone || '';
   document.getElementById('fRegDate').value = m.reg_date ? toDateInputValue(new Date(m.reg_date)) : '';
   document.getElementById('fExamDate').value = m.exam_date || '';
+  document.getElementById('fRegion').value = m.region || '';
+  document.getElementById('fJob').value = m.job || '';
+  document.getElementById('fRegReason').value = m.reg_reason || '';
   document.getElementById('fPersonality').value = m.personality || '';
   document.getElementById('fStatus').value = m.status || '교육전';
   document.getElementById('fNotes').value = m.notes || '';
@@ -2594,16 +2657,12 @@ function loadStatsData() {
   const callCount = currentLogs.filter(l => l.type === 'call').length;
   const smsCount = currentLogs.filter(l => l.type === 'sms' || l.type === 'bulk_sms')
     .reduce((sum, l) => sum + (l.count || 1), 0);
-  const newMemberCount = currentLogs.filter(l => l.type === 'new_member').length;
+  // 신규회원은 항상 등록일(reg_date) 기준으로 카운트
+  const newMemberCount = countNewMembersInRange(currentRange.start, currentRange.end);
 
   document.getElementById('statsCallCount').textContent = callCount;
   document.getElementById('statsSmsCount').textContent = smsCount;
   document.getElementById('statsNewMember').textContent = newMemberCount;
-
-  const memberNewCount = countNewMembersInRange(currentRange.start, currentRange.end);
-  if (newMemberCount === 0 && memberNewCount > 0) {
-    document.getElementById('statsNewMember').textContent = memberNewCount;
-  }
 
   const callData = [], smsData = [], memberData = [];
   ranges.forEach(r => {
@@ -2613,9 +2672,8 @@ function loadStatsData() {
     });
     callData.push(rl.filter(l => l.type === 'call').length);
     smsData.push(rl.filter(l => l.type === 'sms' || l.type === 'bulk_sms').reduce((s, l) => s + (l.count || 1), 0));
-    const logNewM = rl.filter(l => l.type === 'new_member').length;
-    const tableNewM = countNewMembersInRange(r.start, r.end);
-    memberData.push(Math.max(logNewM, tableNewM));
+    // 신규회원은 등록일(reg_date) 기준으로만 카운트
+    memberData.push(countNewMembersInRange(r.start, r.end));
   });
 
   renderStatsBarChart(labels, callData, smsData, memberData);
@@ -2836,13 +2894,12 @@ function getDailyDetailData() {
     const sms = dayLogs.filter(l => l.type === 'sms').reduce((sum, l) => sum + (l.count || 1), 0);
     const bulkSms = dayLogs.filter(l => l.type === 'bulk_sms').reduce((sum, l) => sum + (l.count || 1), 0);
 
-    // 신규회원: 활동로그 + 실제 회원 등록일자 기반 교차 확인
-    const logNewMembers = dayLogs.filter(l => l.type === 'new_member').length;
-    const tableNewMembers = members.filter(m => {
+    // 신규회원: 등록일(reg_date) 기준으로만 카운트
+    const newMembers = members.filter(m => {
+      if (!m.reg_date) return false;
       const rd = new Date(m.reg_date);
       return rd >= dayStart && rd < dayEnd;
     }).length;
-    const newMembers = Math.max(logNewMembers, tableNewMembers);
 
     const total = calls + sms + bulkSms + newMembers;
 
@@ -2963,12 +3020,10 @@ function exportDailyStatsToExcel() {
 
   try {
     const wb = XLSX.utils.book_new();
+    const startVal = document.getElementById('detailStartDate').value;
+    const endVal = document.getElementById('detailEndDate').value;
 
-    // ===== 시트 1: 일별 요약 =====
-    const summaryHeader = ['날짜', '요일', '전화 발신', '문자 발송', '단체 문자', '신규 회원', '합계'];
-    const summaryRows = data.map(d => [d.date, d.dayName, d.calls, d.sms, d.bulkSms, d.newMembers, d.total]);
-
-    // 합계 행 추가
+    // ===== 합계 계산 =====
     const totals = data.reduce((acc, d) => ({
       calls: acc.calls + d.calls,
       sms: acc.sms + d.sms,
@@ -2976,10 +3031,102 @@ function exportDailyStatsToExcel() {
       newMembers: acc.newMembers + d.newMembers,
       total: acc.total + d.total
     }), { calls: 0, sms: 0, bulkSms: 0, newMembers: 0, total: 0 });
-    summaryRows.push(['합계', `${data.length}일`, totals.calls, totals.sms, totals.bulkSms, totals.newMembers, totals.total]);
-
-    // 일평균 행 추가
     const days = data.length || 1;
+
+    // ===== 시트 1: 📊 종합 대시보드 =====
+    const dashRows = [];
+    dashRows.push(['📊 2종소형면허 회원관리 - 종합 통계 리포트']);
+    dashRows.push([`기간: ${startVal} ~ ${endVal} (${data.length}일간)`]);
+    dashRows.push([`생성일: ${new Date().toLocaleString('ko-KR')}`]);
+    dashRows.push([]);
+    dashRows.push(['═══════ 기간 요약 ═══════']);
+    dashRows.push(['항목', '합계', '일평균']);
+    dashRows.push(['전화 발신', totals.calls, parseFloat((totals.calls / days).toFixed(1))]);
+    dashRows.push(['문자 발송', totals.sms, parseFloat((totals.sms / days).toFixed(1))]);
+    dashRows.push(['단체 문자', totals.bulkSms, parseFloat((totals.bulkSms / days).toFixed(1))]);
+    dashRows.push(['신규 회원(등록일 기준)', totals.newMembers, parseFloat((totals.newMembers / days).toFixed(1))]);
+    dashRows.push(['총 합계', totals.total, parseFloat((totals.total / days).toFixed(1))]);
+    dashRows.push([]);
+
+    // 요일별 분석
+    dashRows.push(['═══════ 요일별 활동 분석 ═══════']);
+    dashRows.push(['요일', '전화', '문자', '단체문자', '신규회원', '합계', '비중(%)']);
+    const dayOfWeekNames = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+    const dayStats = [0,1,2,3,4,5,6].map(dow => {
+      const dayData = data.filter(d => d.dayOfWeek === dow);
+      const c = dayData.reduce((s,d) => s+d.calls, 0);
+      const sm = dayData.reduce((s,d) => s+d.sms, 0);
+      const bsm = dayData.reduce((s,d) => s+d.bulkSms, 0);
+      const nm = dayData.reduce((s,d) => s+d.newMembers, 0);
+      const t = c+sm+bsm+nm;
+      return { name: dayOfWeekNames[dow], calls: c, sms: sm, bulkSms: bsm, newMembers: nm, total: t };
+    });
+    dayStats.forEach(ds => {
+      const pct = totals.total > 0 ? ((ds.total / totals.total) * 100).toFixed(1) : '0.0';
+      dashRows.push([ds.name, ds.calls, ds.sms, ds.bulkSms, ds.newMembers, ds.total, `${pct}%`]);
+    });
+    dashRows.push([]);
+
+    // 회원 현황 요약
+    dashRows.push(['═══════ 회원 현황 ═══════']);
+    dashRows.push(['전체 회원 수', members.length]);
+    const statusCounts = {};
+    members.forEach(m => { statusCounts[m.status || '교육전'] = (statusCounts[m.status || '교육전'] || 0) + 1; });
+    Object.entries(statusCounts).forEach(([s, c]) => dashRows.push([`  ${s}`, c]));
+    dashRows.push([]);
+
+    // 등록이유별 분석
+    dashRows.push(['═══════ 등록이유별 분석 ═══════']);
+    dashRows.push(['등록이유', '회원 수', '비율(%)']);
+    const reasonCounts = {};
+    members.forEach(m => { 
+      const r = m.reg_reason || '미지정';
+      reasonCounts[r] = (reasonCounts[r] || 0) + 1; 
+    });
+    Object.entries(reasonCounts).sort((a,b) => b[1]-a[1]).forEach(([r, c]) => {
+      dashRows.push([r, c, `${((c/members.length)*100).toFixed(1)}%`]);
+    });
+    dashRows.push([]);
+
+    // 지역별 분석
+    dashRows.push(['═══════ 지역별 분석 ═══════']);
+    dashRows.push(['지역', '회원 수', '비율(%)']);
+    const regionCounts = {};
+    members.forEach(m => {
+      const r = m.region || '미지정';
+      regionCounts[r] = (regionCounts[r] || 0) + 1;
+    });
+    Object.entries(regionCounts).sort((a,b) => b[1]-a[1]).forEach(([r, c]) => {
+      dashRows.push([r, c, `${((c/members.length)*100).toFixed(1)}%`]);
+    });
+    dashRows.push([]);
+
+    // 직업별 분석
+    dashRows.push(['═══════ 직업별 분석 ═══════']);
+    dashRows.push(['직업', '회원 수', '비율(%)']);
+    const jobCounts = {};
+    members.forEach(m => {
+      const j = m.job || '미지정';
+      jobCounts[j] = (jobCounts[j] || 0) + 1;
+    });
+    Object.entries(jobCounts).sort((a,b) => b[1]-a[1]).forEach(([j, c]) => {
+      dashRows.push([j, c, `${((c/members.length)*100).toFixed(1)}%`]);
+    });
+
+    const wsDash = XLSX.utils.aoa_to_sheet(dashRows);
+    wsDash['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 }];
+    // 제목행 머지
+    wsDash['!merges'] = [
+      { s: {r:0,c:0}, e: {r:0,c:6} },
+      { s: {r:1,c:0}, e: {r:1,c:6} },
+      { s: {r:2,c:0}, e: {r:2,c:6} }
+    ];
+    XLSX.utils.book_append_sheet(wb, wsDash, '📊 종합 대시보드');
+
+    // ===== 시트 2: 일별 요약 =====
+    const summaryHeader = ['날짜', '요일', '전화 발신', '문자 발송', '단체 문자', '신규 회원(등록일기준)', '합계'];
+    const summaryRows = data.map(d => [d.date, d.dayName, d.calls, d.sms, d.bulkSms, d.newMembers, d.total]);
+    summaryRows.push(['합계', `${data.length}일`, totals.calls, totals.sms, totals.bulkSms, totals.newMembers, totals.total]);
     summaryRows.push([
       '일평균', '-',
       parseFloat((totals.calls / days).toFixed(1)),
@@ -2988,124 +3135,252 @@ function exportDailyStatsToExcel() {
       parseFloat((totals.newMembers / days).toFixed(1)),
       parseFloat((totals.total / days).toFixed(1))
     ]);
-
-    const summaryData = [summaryHeader, ...summaryRows];
-    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
-
-    // 열 너비 설정
-    ws1['!cols'] = [
-      { wch: 14 }, // 날짜
-      { wch: 6 },  // 요일
-      { wch: 12 }, // 전화 발신
-      { wch: 12 }, // 문자 발송
-      { wch: 12 }, // 단체 문자
-      { wch: 12 }, // 신규 회원
-      { wch: 10 }, // 합계
-    ];
-
+    const ws1 = XLSX.utils.aoa_to_sheet([summaryHeader, ...summaryRows]);
+    ws1['!cols'] = [{ wch: 14 }, { wch: 6 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, ws1, '일별 요약');
 
-    // ===== 시트 2: 전화 발신 상세 =====
-    const callHeader = ['날짜', '시간', '대상자', '메모'];
+    // ===== 시트 3: 전화 발신 상세 =====
+    const callHeader = ['날짜', '요일', '시간', '대상자', '메모'];
     const callRows = [];
     data.forEach(d => {
       if (d.callDetails.length > 0) {
-        d.callDetails.forEach(c => {
-          callRows.push([d.date, c.time, c.name, c.detail]);
-        });
+        d.callDetails.forEach(c => callRows.push([d.date, d.dayName, c.time, c.name, c.detail]));
       }
     });
-    if (callRows.length === 0) {
-      callRows.push(['데이터 없음', '', '', '']);
-    }
+    if (callRows.length === 0) callRows.push(['데이터 없음', '', '', '', '']);
     const ws2 = XLSX.utils.aoa_to_sheet([callHeader, ...callRows]);
-    ws2['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }];
+    ws2['!cols'] = [{ wch: 14 }, { wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 30 }];
     XLSX.utils.book_append_sheet(wb, ws2, '전화 발신 상세');
 
-    // ===== 시트 3: 문자 발송 상세 =====
-    const smsHeader = ['날짜', '시간', '대상자', '유형', '건수', '메모'];
+    // ===== 시트 4: 문자 발송 상세 =====
+    const smsHeader = ['날짜', '요일', '시간', '대상자', '유형', '건수', '메모'];
     const smsRows = [];
     data.forEach(d => {
       if (d.smsDetails.length > 0) {
-        d.smsDetails.forEach(s => {
-          smsRows.push([d.date, s.time, s.name, s.type, s.count, s.detail]);
-        });
+        d.smsDetails.forEach(s => smsRows.push([d.date, d.dayName, s.time, s.name, s.type, s.count, s.detail]));
       }
     });
-    if (smsRows.length === 0) {
-      smsRows.push(['데이터 없음', '', '', '', '', '']);
-    }
+    if (smsRows.length === 0) smsRows.push(['데이터 없음', '', '', '', '', '', '']);
     const ws3 = XLSX.utils.aoa_to_sheet([smsHeader, ...smsRows]);
-    ws3['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 8 }, { wch: 30 }];
+    ws3['!cols'] = [{ wch: 14 }, { wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 8 }, { wch: 30 }];
     XLSX.utils.book_append_sheet(wb, ws3, '문자 발송 상세');
 
-    // ===== 시트 4: 신규 회원 상세 =====
-    const memberHeader = ['날짜', '시간', '회원명', '메모'];
-    const memberRows = [];
-    data.forEach(d => {
-      if (d.memberDetails.length > 0) {
-        d.memberDetails.forEach(m => {
-          memberRows.push([d.date, m.time, m.name, m.detail]);
-        });
-      }
+    // ===== 시트 5: 신규 회원 상세 (등록일 기준) =====
+    const newMemberHeader = ['날짜', '요일', '회원명', '나이', '성별', '연락처', '지역', '직업', '등록이유', '상태'];
+    const newMemberRows = [];
+    const sdStart = new Date(startVal);
+    const sdEnd = new Date(endVal);
+    sdEnd.setDate(sdEnd.getDate() + 1);
+    members.filter(m => {
+      if (!m.reg_date) return false;
+      const rd = new Date(m.reg_date);
+      return rd >= sdStart && rd < sdEnd;
+    }).sort((a,b) => new Date(b.reg_date) - new Date(a.reg_date)).forEach(m => {
+      const rd = new Date(m.reg_date);
+      const dateStr = `${rd.getFullYear()}.${String(rd.getMonth()+1).padStart(2,'0')}.${String(rd.getDate()).padStart(2,'0')}`;
+      const dayNames = ['일','월','화','수','목','금','토'];
+      newMemberRows.push([dateStr, dayNames[rd.getDay()], m.name||'', m.age||'', m.gender||'', m.phone||'', m.region||'', m.job||'', m.reg_reason||'', m.status||'']);
     });
-    // 활동 로그에 없는 경우, 회원 데이터에서 직접 추출
-    if (memberRows.length === 0) {
-      const startDate = new Date(document.getElementById('detailStartDate').value);
-      const endDate = new Date(document.getElementById('detailEndDate').value);
-      endDate.setDate(endDate.getDate() + 1);
-      members.forEach(m => {
-        const rd = new Date(m.reg_date);
-        if (rd >= startDate && rd < endDate) {
-          const dateStr = `${rd.getFullYear()}.${String(rd.getMonth() + 1).padStart(2, '0')}.${String(rd.getDate()).padStart(2, '0')}`;
-          const timeStr = rd.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'});
-          memberRows.push([dateStr, timeStr, m.name, `${m.phone || ''} / ${m.status || ''}`]);
-        }
-      });
-    }
-    if (memberRows.length === 0) {
-      memberRows.push(['데이터 없음', '', '', '']);
-    }
-    const ws4 = XLSX.utils.aoa_to_sheet([memberHeader, ...memberRows]);
-    ws4['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }];
+    if (newMemberRows.length === 0) newMemberRows.push(['데이터 없음','','','','','','','','','']);
+    const ws4 = XLSX.utils.aoa_to_sheet([newMemberHeader, ...newMemberRows]);
+    ws4['!cols'] = [{ wch: 14 }, { wch: 6 }, { wch: 10 }, { wch: 6 }, { wch: 6 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 10 }];
     XLSX.utils.book_append_sheet(wb, ws4, '신규 회원 상세');
 
-    // ===== 시트 5: 전체 회원 현황 =====
-    const allMemberHeader = ['번호', '이름', '나이', '성별', '연락처', '검정일자', '성격', '상태', '메모', '등록일'];
+    // ===== 시트 6: 전체 회원 현황 =====
+    const allMemberHeader = ['번호', '이름', '나이', '성별', '연락처', '지역', '직업', '등록이유', '검정일자', '성격', '상태', '메모', '등록일'];
     const allMemberRows = members.map((m, i) => [
       i + 1,
-      m.name || '',
-      m.age || '',
+      m.name || '', m.age || '',
       m.gender === 'M' ? '남' : (m.gender === 'F' ? '여' : m.gender || ''),
-      m.phone || '',
-      m.exam_date || '',
-      m.personality || '',
-      m.status || '',
-      m.notes || '',
+      m.phone || '', m.region || '', m.job || '', m.reg_reason || '',
+      m.exam_date || '', m.personality || '', m.status || '', m.notes || '',
       m.reg_date ? new Date(m.reg_date).toLocaleDateString('ko-KR') : ''
     ]);
-    if (allMemberRows.length === 0) {
-      allMemberRows.push(['데이터 없음', '', '', '', '', '', '', '', '', '']);
-    }
+    if (allMemberRows.length === 0) allMemberRows.push(['데이터 없음','','','','','','','','','','','','']);
     const ws5 = XLSX.utils.aoa_to_sheet([allMemberHeader, ...allMemberRows]);
     ws5['!cols'] = [
       { wch: 6 }, { wch: 10 }, { wch: 6 }, { wch: 6 }, { wch: 14 },
-      { wch: 14 }, { wch: 10 }, { wch: 12 }, { wch: 30 }, { wch: 14 }
+      { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 10 },
+      { wch: 10 }, { wch: 25 }, { wch: 14 }
     ];
     XLSX.utils.book_append_sheet(wb, ws5, '전체 회원 현황');
 
-    // 파일명 생성
-    const startVal = document.getElementById('detailStartDate').value.replace(/-/g, '');
-    const endVal = document.getElementById('detailEndDate').value.replace(/-/g, '');
-    const fileName = `회원관리_일별통계_${startVal}_${endVal}.xlsx`;
+    // ===== 시트 7: 등록이유·지역·직업 분석 =====
+    const analysisRows = [];
+    analysisRows.push(['📈 등록이유별 분석']);
+    analysisRows.push(['등록이유', '회원 수', '비율(%)', '█ 그래프']);
+    Object.entries(reasonCounts).sort((a,b) => b[1]-a[1]).forEach(([r, c]) => {
+      const pct = ((c/members.length)*100).toFixed(1);
+      const bar = '█'.repeat(Math.round(c/members.length*30));
+      analysisRows.push([r, c, `${pct}%`, bar]);
+    });
+    analysisRows.push([]);
+    analysisRows.push(['📍 지역별 분석']);
+    analysisRows.push(['지역', '회원 수', '비율(%)', '█ 그래프']);
+    Object.entries(regionCounts).sort((a,b) => b[1]-a[1]).forEach(([r, c]) => {
+      const pct = ((c/members.length)*100).toFixed(1);
+      const bar = '█'.repeat(Math.round(c/members.length*30));
+      analysisRows.push([r, c, `${pct}%`, bar]);
+    });
+    analysisRows.push([]);
+    analysisRows.push(['💼 직업별 분석']);
+    analysisRows.push(['직업', '회원 수', '비율(%)', '█ 그래프']);
+    Object.entries(jobCounts).sort((a,b) => b[1]-a[1]).forEach(([j, c]) => {
+      const pct = ((c/members.length)*100).toFixed(1);
+      const bar = '█'.repeat(Math.round(c/members.length*30));
+      analysisRows.push([j, c, `${pct}%`, bar]);
+    });
+    analysisRows.push([]);
+    analysisRows.push(['📅 요일별 활동 분석']);
+    analysisRows.push(['요일', '합계', '비중(%)', '█ 그래프']);
+    dayStats.forEach(ds => {
+      const pct = totals.total > 0 ? ((ds.total / totals.total) * 100).toFixed(1) : '0.0';
+      const bar = totals.total > 0 ? '█'.repeat(Math.round(ds.total/totals.total*30)) : '';
+      analysisRows.push([ds.name, ds.total, `${pct}%`, bar]);
+    });
 
-    // 다운로드
+    const wsAnalysis = XLSX.utils.aoa_to_sheet(analysisRows);
+    wsAnalysis['!cols'] = [{ wch: 15 }, { wch: 10 }, { wch: 10 }, { wch: 35 }];
+    XLSX.utils.book_append_sheet(wb, wsAnalysis, '📈 분석 그래프');
+
+    // 파일명 생성
+    const fn1 = startVal.replace(/-/g, '');
+    const fn2 = endVal.replace(/-/g, '');
+    const fileName = `회원관리_일별통계_${fn1}_${fn2}.xlsx`;
+
     XLSX.writeFile(wb, fileName);
-    showToast(`엑셀 파일이 다운로드되었습니다 (${data.length}일 데이터)`, 'success');
+    showToast(`엑셀 파일이 다운로드되었습니다 (${data.length}일 / ${7}시트)`, 'success');
+
+    // 그래프 포함 HTML 리포트도 동시 생성
+    setTimeout(() => generateChartReport(data, totals, days, reasonCounts, regionCounts, jobCounts, dayStats, startVal, endVal), 500);
+
   } catch (e) {
     console.error('Excel export error:', e);
     showToast('엑셀 다운로드 중 오류가 발생했습니다', 'error');
   }
+}
+
+// ===== 그래프 포함 HTML 리포트 생성 =====
+function generateChartReport(data, totals, days, reasonCounts, regionCounts, jobCounts, dayStats, startVal, endVal) {
+  const dayLabels = data.map(function(d) { return d.date.substring(5) + '(' + d.dayName + ')'; });
+  const callData = data.map(function(d) { return d.calls; });
+  const smsData = data.map(function(d) { return d.sms; });
+  const bulkData = data.map(function(d) { return d.bulkSms; });
+  const newData = data.map(function(d) { return d.newMembers; });
+
+  // 바 차트 HTML 미리 생성 (중첩 템플릿 회피)
+  function buildBarItems(entries, color1, color2, total) {
+    return entries.map(function(e) {
+      var pct = ((e[1]/total)*100).toFixed(1);
+      return '<div class="bar-item"><span class="bar-label">' + e[0] + '</span><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,' + color1 + ',' + color2 + ');"></div></div><span class="bar-value">' + e[1] + '명 (' + pct + '%)</span></div>';
+    }).join('');
+  }
+
+  var reasonEntries = Object.entries(reasonCounts).sort(function(a,b){return b[1]-a[1];});
+  var regionEntries = Object.entries(regionCounts).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var jobEntries = Object.entries(jobCounts).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var mLen = members.length || 1;
+
+  var reasonBars = buildBarItems(reasonEntries, '#3b82f6', '#60a5fa', mLen);
+  var regionBars = buildBarItems(regionEntries, '#16a34a', '#4ade80', mLen);
+  var jobBars = buildBarItems(jobEntries, '#7c3aed', '#a78bfa', mLen);
+
+  // 31일 초과시 샘플링
+  var step = dayLabels.length > 31 ? Math.ceil(dayLabels.length/31) : 1;
+  var sampledLabels = dayLabels.filter(function(_,i){return i%step===0;});
+  var sampledCall = callData.filter(function(_,i){return i%step===0;});
+  var sampledSms = smsData.filter(function(_,i){return i%step===0;});
+  var sampledBulk = bulkData.filter(function(_,i){return i%step===0;});
+  var sampledNew = newData.filter(function(_,i){return i%step===0;});
+
+  var dayStatsNames = JSON.stringify(dayStats.map(function(d){return d.name;}));
+  var dayStatsCalls = JSON.stringify(dayStats.map(function(d){return d.calls;}));
+  var dayStatsSms = JSON.stringify(dayStats.map(function(d){return d.sms;}));
+  var dayStatsBulk = JSON.stringify(dayStats.map(function(d){return d.bulkSms;}));
+  var dayStatsNew = JSON.stringify(dayStats.map(function(d){return d.newMembers;}));
+
+  var genDate = new Date().toLocaleString('ko-KR');
+
+  var html = '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>통계 리포트 ' + startVal + ' ~ ' + endVal + '</title>\n' +
+  '<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>\n' +
+  '<style>\n' +
+  "@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');\n" +
+  "* { margin:0; padding:0; box-sizing:border-box; }\n" +
+  "body { font-family:'Noto Sans KR',sans-serif; background:#f5f7fb; color:#1f2937; padding:20px; }\n" +
+  ".report { max-width:1000px; margin:0 auto; }\n" +
+  ".report-header { background:linear-gradient(135deg,#1e40af,#3b82f6); color:white; padding:30px; border-radius:16px; margin-bottom:24px; }\n" +
+  ".report-header h1 { font-size:24px; margin-bottom:8px; }\n" +
+  ".report-header p { opacity:0.85; font-size:14px; }\n" +
+  ".summary-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }\n" +
+  ".summary-card { background:white; border-radius:12px; padding:20px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.08); }\n" +
+  ".summary-card .num { font-size:28px; font-weight:700; }\n" +
+  ".summary-card .label { font-size:12px; color:#6b7280; margin-top:4px; }\n" +
+  ".sc-call .num { color:#16a34a; } .sc-sms .num { color:#2563eb; } .sc-bulk .num { color:#7c3aed; } .sc-new .num { color:#ea580c; } .sc-total .num { color:#1f2937; }\n" +
+  ".chart-section { background:white; border-radius:12px; padding:24px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }\n" +
+  ".chart-section h3 { font-size:16px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }\n" +
+  ".chart-wrap { position:relative; width:100%; height:350px; }\n" +
+  ".analysis-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }\n" +
+  ".analysis-card { background:white; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }\n" +
+  ".analysis-card h4 { font-size:14px; font-weight:700; margin-bottom:12px; }\n" +
+  ".bar-item { display:flex; align-items:center; margin-bottom:8px; font-size:13px; }\n" +
+  ".bar-label { width:70px; font-weight:500; flex-shrink:0; }\n" +
+  ".bar-track { flex:1; height:20px; background:#f3f4f6; border-radius:10px; overflow:hidden; margin:0 8px; }\n" +
+  ".bar-fill { height:100%; border-radius:10px; }\n" +
+  ".bar-value { width:60px; text-align:right; font-weight:600; font-size:12px; flex-shrink:0; }\n" +
+  ".print-btn { position:fixed; bottom:20px; right:20px; background:#2563eb; color:white; border:none; padding:12px 24px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(37,99,235,0.3); font-family:inherit; z-index:100; }\n" +
+  ".print-btn:hover { background:#1d4ed8; }\n" +
+  "@media print { .print-btn { display:none; } .chart-section { break-inside:avoid; } }\n" +
+  "@media (max-width:768px) { .summary-grid { grid-template-columns:repeat(3,1fr); } .analysis-grid { grid-template-columns:1fr; } .chart-wrap { height:250px; } }\n" +
+  '</style>\n</head>\n<body>\n<div class="report">\n' +
+  '  <div class="report-header">\n    <h1>📊 2종소형면허 회원관리 통계 리포트</h1>\n    <p>기간: ' + startVal + ' ~ ' + endVal + ' (' + data.length + '일간) | 생성일: ' + genDate + '</p>\n  </div>\n' +
+  '  <div class="summary-grid">\n' +
+  '    <div class="summary-card sc-call"><div class="num">' + totals.calls + '</div><div class="label">전화 발신</div></div>\n' +
+  '    <div class="summary-card sc-sms"><div class="num">' + totals.sms + '</div><div class="label">문자 발송</div></div>\n' +
+  '    <div class="summary-card sc-bulk"><div class="num">' + totals.bulkSms + '</div><div class="label">단체 문자</div></div>\n' +
+  '    <div class="summary-card sc-new"><div class="num">' + totals.newMembers + '</div><div class="label">신규 회원</div></div>\n' +
+  '    <div class="summary-card sc-total"><div class="num">' + totals.total + '</div><div class="label">총 합계</div></div>\n' +
+  '  </div>\n' +
+  '  <div class="chart-section"><h3>📊 일별 활동 추이</h3><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>\n' +
+  '  <div class="chart-section"><h3>📅 요일별 활동 분석</h3><div class="chart-wrap" style="height:280px;"><canvas id="dayChart"></canvas></div></div>\n' +
+  '  <div class="analysis-grid">\n' +
+  '    <div class="analysis-card"><h4>📢 등록이유별 분석</h4>' + reasonBars + '</div>\n' +
+  '    <div class="analysis-card"><h4>📍 지역별 분석</h4>' + regionBars + '</div>\n' +
+  '    <div class="analysis-card"><h4>💼 직업별 분석</h4>' + jobBars + '</div>\n' +
+  '  </div>\n' +
+  '  <div class="chart-section"><h3>🥧 활동 비율</h3><div class="chart-wrap" style="height:280px;"><canvas id="pieChart"></canvas></div></div>\n' +
+  '</div>\n' +
+  '<button class="print-btn" onclick="window.print()">🖨️ 인쇄 / PDF 저장</button>\n' +
+  '<script>\n' +
+  'var barCtx=document.getElementById("barChart").getContext("2d");\n' +
+  'new Chart(barCtx,{type:"bar",data:{labels:' + JSON.stringify(sampledLabels) + ',datasets:[' +
+  '{label:"전화",data:' + JSON.stringify(sampledCall) + ',backgroundColor:"rgba(22,163,74,0.7)",borderRadius:4},' +
+  '{label:"문자",data:' + JSON.stringify(sampledSms) + ',backgroundColor:"rgba(37,99,235,0.7)",borderRadius:4},' +
+  '{label:"단체문자",data:' + JSON.stringify(sampledBulk) + ',backgroundColor:"rgba(124,58,237,0.7)",borderRadius:4},' +
+  '{label:"신규회원",data:' + JSON.stringify(sampledNew) + ',backgroundColor:"rgba(234,88,12,0.7)",borderRadius:4}' +
+  ']},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{usePointStyle:true,padding:14}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:45}},y:{beginAtZero:true,ticks:{stepSize:1}}}}});\n' +
+  'var dayCtx=document.getElementById("dayChart").getContext("2d");\n' +
+  'new Chart(dayCtx,{type:"bar",data:{labels:' + dayStatsNames + ',datasets:[' +
+  '{label:"전화",data:' + dayStatsCalls + ',backgroundColor:"rgba(22,163,74,0.7)",borderRadius:4},' +
+  '{label:"문자",data:' + dayStatsSms + ',backgroundColor:"rgba(37,99,235,0.7)",borderRadius:4},' +
+  '{label:"단체문자",data:' + dayStatsBulk + ',backgroundColor:"rgba(124,58,237,0.7)",borderRadius:4},' +
+  '{label:"신규회원",data:' + dayStatsNew + ',backgroundColor:"rgba(234,88,12,0.7)",borderRadius:4}' +
+  ']},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{usePointStyle:true,padding:14}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,ticks:{stepSize:1}}}}});\n' +
+  'var pieCtx=document.getElementById("pieChart").getContext("2d");\n' +
+  'new Chart(pieCtx,{type:"doughnut",data:{labels:["전화","문자","단체문자","신규회원"],datasets:[{data:[' + totals.calls + ',' + totals.sms + ',' + totals.bulkSms + ',' + totals.newMembers + '],backgroundColor:["rgba(22,163,74,0.8)","rgba(37,99,235,0.8)","rgba(124,58,237,0.8)","rgba(234,88,12,0.8)"],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:"55%",plugins:{legend:{position:"bottom",labels:{usePointStyle:true,padding:14}}}}});\n' +
+  '<\/script>\n</body>\n</html>';
+
+  var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  var fn1 = startVal.replace(/-/g, '');
+  var fn2 = endVal.replace(/-/g, '');
+  a.download = '회원관리_그래프리포트_' + fn1 + '_' + fn2 + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('📊 그래프 리포트(HTML)도 함께 다운로드되었습니다', 'success');
 }
 </script>
 </body>
